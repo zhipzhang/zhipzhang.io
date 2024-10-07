@@ -1,0 +1,243 @@
+#!/bin/bash
+
+# This script should be run from the CORSIKA top-level directory.
+# It is for Linux x86* and x86_64 only.
+
+usegf=1 # Use gfortran where possible: usegf=1
+if [ -z "$(which gfortran 2>/dev/null)" ]; then usegf=0; fi
+
+optstdreq=""
+if [ -z "${CC}" ]; then
+   ccomp="gcc"
+else
+   ccomp="${CC}"
+fi
+cvers="$(${ccomp} -dumpversion)"
+# If a C compiler (like gcc 4.8.5) does c89 by default then the raybnd_vec_ function 
+# in atmo.c would get ignored since it requires at least c99 conformance.
+# The cerenkopt.c code would fail to compile without c99.
+# Try to enforce c99 language standard if we encounter that specific situation.
+echo "${ccomp} : ${cvers}" | egrep '.*gcc.* : 4\.' >/dev/null && optstdreq="-std=c99"
+
+extra=""
+plusopt=""
+cocoopt=""
+echo "$@" | grep -i iactext > /dev/null && \
+            extra="${extra} -DIACTEXT -D__IACTEXT__ -D__IACT__" && \
+            cocoopt="${cocoopt} --enable-IACTEXT"
+echo "$@" | grep -i cerwlen > /dev/null && \
+            extra="${extra} -DCERWLEN -D__CERWLEN__" && \
+            cocoopt="${cocoopt} --enable-CERWLEN"
+echo "$@" | grep -i store-emitter > /dev/null && \
+            extra="${extra} -DIACTEXT -D__IACTEXT__ -DSTORE_EMITTER" && \
+            plusopt="${plusopt} iactext" && \
+            cocoopt="${cocoopt} --enable-IACTEXT"
+echo "$@" | grep -i mark-direct > /dev/null && \
+            extra="${extra} -DIACTEXT -D__IACTEXT__ -DMARK_DIRECT_LIGHT" && \
+            plusopt="${plusopt} iactext" && \
+            cocoopt="${cocoopt} --enable-IACTEXT"
+echo "$@" | grep -i iact-no-grid > /dev/null && \
+            extra="${extra} -DIACT_NO_GRID"
+echo "$@" | egrep -i 'cerenkopt|cherenkopt' > /dev/null && \
+            extra="${extra} -DCERENKOPT ${optstdreq}" && \
+            cocopt="${cocoopt} --with-cerenkopt" && \
+            plusopt="${plusopt} cerenkopt" && \
+            export CPPDEFS="${CPPDEFS} -D__CERENKOPT__"
+echo "$@" | grep -i vlibm > /dev/null && \
+            extra="${extra} -DVLIBM" && \
+            plusopt="${plusopt} vlibm" && \
+            cocopt="${cocoopt} --with-vlibm" && \
+            export CPPDEFS="${CPPDEFS} -D__VLIBM__"
+echo "$@" | grep -i ehistory > /dev/null && \
+            extra="${extra} -DEHISTORY -D__EHISTORY__" && \
+            cocoopt="${cocoopt} --enable-EHISTORY"
+echo "$@" | grep -i muprod > /dev/null && \
+            extra="${extra} -DMUPROD -D__MUPROD__" && \
+            cocoopt="${cocoopt} --enable-MUPROD"
+echo "$@" | grep -i particles-extra > /dev/null && \
+           extra="${extra} -DIACTEXT -D__IACTEXT__ -DSTORE_EMITTER -DEHISTORY -D__EHISTORY__ -DMUPROD -D__MUPROD__" && \
+           cocoopt="${cocoopt} --enable-IACTEXT --enable-EHISTORY --enable-MUPROD"
+if [ -z "${force_generic}" ]; then
+   force_generic="1"
+fi
+if [ -z "${force_native}" ]; then
+   force_native="0"
+fi
+echo "$@" | grep -i generic > /dev/null && force_generic="1" && force_native="0"
+echo "$@" | grep -i native > /dev/null && force_generic="0" && force_native="1"
+# dbg="-fomit-frame-pointer"
+dbg="-g" # !!!
+debugging=0
+echo "$@" | grep -i debug > /dev/null && debugging=1
+if [ "$debugging" = "1" ]; then
+   dbg="-g -O0"
+fi
+if [ "${CORSIKA_VERSION}" == "" ]; then
+   CORSIKA_VERSION="$(egrep '^#define __CVERSION__'  src/corsika.F | sed 's/^.*__ //' | sed 's/[\.]//')"
+   if [ "${CORSIKA_VERSION}" == "" ]; then
+      CORSIKA_VERSION="$(/bin/pwd | tail -5c | sed 's:/::')"
+   fi
+fi
+
+# For what CPU type should the (which?) compiler try to optimize?
+
+if [ ! -z "${F77}" ]; then 
+   F77gf="$(which ${F77} | grep gfortran)";
+   F77fl="$(which ${F77} | grep flang)";
+fi
+if [ ! -z "${F77fl}" ]; then
+   usegf=0 # Not using a GNU Fortran compiler, neither g77 nor gfortran.
+fi
+if [ "$usegf" = "1" ]; then
+ if [ ! -z "${F77gf}" ]; then
+   vers="$(${F77gf} -dumpversion | head -1 | sed 's/^.*) \([\.0-9]*\) .*$/\1/')"
+ else
+   vers="$(gfortran -dumpversion | head -1 | sed 's/^.*) \([\.0-9]*\) .*$/\1/')"
+ fi
+ v42plus="$( (echo $vers | egrep '^(4\.[2-9])|(5\.)|(6\.)' >/dev/null) && echo 1 || echo 0)"
+fi
+
+a="generic"
+if [ "`uname -m`" = x86_64 ]; then
+   a="generic64"
+fi
+# We don't need to compile code that runs on good old i386 processors.
+# Try to compile for pentium or newer processor types. If compilation
+# fails because of the generated options, feedback on your machine
+# (`uname -m`) and compiler version is welcome.
+if [ "${force_generic}" != "1" ]; then
+ if [ "$usegf" = "1" ]; then
+   if [ "$v42plus" = "1" ]; then
+      a="native" # may not run on older processors but is optimal for current machine
+   else
+      if [ "`uname -m`" = x86_64 ]; then
+         if [ `cat /proc/cpuinfo | grep 'AMD' | wc -l` = 0 ]; then
+            a="nocona" # or: pentium4
+         else 
+            a="k8" # 64-bit AMD must be in the Opteron class.
+         fi
+      else 
+         a="i686" # In 32-bit be more conservative.
+      fi
+   fi
+ else
+   a="i686"
+   if [ "`uname -m`" = x86_64 ]; then
+     if [ `cat /proc/cpuinfo | grep 'AMD' | wc -l` = 0 ]; then
+       # a="nocona" # or: pentium4
+       a="pentium4" # more conservative for g77 from GCC 3.3.x
+     else 
+       a="k8" # 64-bit AMD must be in the Opteron class.
+     fi
+   else 
+     a="i686"
+   fi
+ fi
+fi
+
+if [ ! -z "${CPU}" ]; then
+   a="${CPU}"
+fi
+
+# Choice of optimization options:
+if [ "${force_native}" = "1" ]; then
+   a="native"
+   opt="-O3 -march=$a -mtune=$a -funroll-loops ${dbg}"
+   echo "Compiling for native architecture"
+else
+ if [ "$a" == "generic" -o "$a" == "generic64" ]; then
+   opt="-O2 -funroll-loops ${dbg}"
+   echo "Compiling for generic architecture"
+ else
+   opt="-O2 -march=$a -mtune=$a -funroll-loops ${dbg}"
+   echo "Compiling for $a architecture"
+ fi
+fi
+# opt="-O2 -march=$a -mtune=$a -funroll-loops -fomit-frame-pointer -mfpmath=sse" # perhaps a 2% improvement
+# opt="-O2 -march=$a -mtune=$a -funroll-loops -fomit-frame-pointer -ffast-math"  # 18% improvement but risky
+# opt="-O0" # 27% slower # !!!
+
+wrn="-Wall -Wunused -Wuninitialized"
+if [ "$usegf" = "1" ]; then
+   fwrn="-ffixed-line-length-132 -Wsurprising"
+   if [ "$v42plus" = "1" ]; then
+      fwrn="${fwrn} -Wtabs"
+   fi
+else
+   fwrn="-Wsurprising"
+fi
+
+# You may want to try out profile-base optimization - 
+# but that doesn't improve performance in the end and is
+# pretty hard to achieve with the corsika-install script.
+prof=""
+# prof="-fprofile-arcs -fprofile-generate"
+# prof="-fbranch-probabilities -fprofile-use"
+
+export CFLAGS="$opt $wrn $prof $extra"
+export CXXFLAGS="$CFLAGS"
+export FFLAGS="$wrn $fwrn $opt -fno-automatic $prof" # no '-finit-local-zero' with gfortran ( < 4.2 ? )
+if [ "$prof" != "" ]; then
+   export LDFLAGS="$prof"
+fi
+
+# Define the compilers to be used:
+if [ -z "${CC}" ]; then
+   export CC=gcc;
+fi
+if [ -z "${CXX}" ]; then
+   export CXX=g++;
+fi
+if [ -z "${CPP}" ]; then
+   export CPP="${CC} -E ${CPPDEFS}"
+elif [ ! -z "${CPPDEFS}" ]; then
+   export CPP="${CPP} ${CPPDEFS}"
+fi
+if [ -z "${F77}" ]; then
+ if [ "$usegf" = "1" ]; then
+   export F77="gfortran"
+   export FFLAGS="${FFLAGS} -std=legacy -frecord-marker=4"
+ else
+   export F77="g77" # program runs some 30% slower
+ fi
+fi
+
+echo "CC='${CC}'"
+echo "CXX='${CXX}'"
+echo "CPP='${CPP}'"
+echo "F77='${F77}' (v42plus='${v42plus}')"
+echo "CFLAGS='${CFLAGS}'"
+echo "CXXFLAGS='${CXXFLAGS}'"
+echo "FFLAGS='${FFLAGS}'"
+echo "LDFLAGS='${LDFLAGS}'"
+
+# Some gfortran installations do not automatically link
+# against the own library. So better add it explicitly.
+if [ "$usegf" = "1" ]; then
+   export LDFLAGS="${LDFLAGS} -lgfortran -lm -lc"
+fi
+
+# Define your selection of CORSIKA options (falling back to qgsjet and urqmd):
+# bernlohr/gen_config qgs2 urqmd "$@" || exit 1
+# If there was a debug option, don't pass this down to gen_config:
+echo "Calling gen_config qgs2 urqmd ${plusopt}" `echo "$@" | sed 's/debug//'`
+bernlohr/gen_config qgs2 urqmd ${plusopt} `echo "$@" | sed 's/debug//'` || exit 1
+
+# And now run the autoconf/make/... stuff without being asked any questions:
+if [ -f ./coconut ]; then
+   if [ -f Makefile ]; then make clean; fi
+   # 'Coconut clean' does not remove all old libraries; do it yourself ...
+   /bin/rm */*.a lib/*/*.a
+   # CORSIKA_USER_COMP=1 ./coconut --expert ${cocoopt} clean < /dev/null
+   echo "Running ./coconut --expert ${cocoopt}"
+   CORSIKA_USER_COMP=1 ./coconut --expert ${cocoopt} < /dev/null || exit 1 # The 'exit' will have no effect because of missing return codes in coconut
+   lastcors="$(find run -name "corsika${CORSIKA_VERSION}$(uname)_*" -mmin -2 2>/dev/null | tail -1)"
+   if [ -z "${lastcors}" ]; then
+      echo 'No CORSIKA binary got installed (note that coconut has no special exit code on failure)'
+      echo "Expected to find corsika${CORSIKA_VERSION}$(uname)_* in directory $(/bin/pwd)/run/"
+      exit 1
+   fi
+else
+   CORSIKA_USER_COMP=1 ./corsika-install clean < /dev/null
+   CORSIKA_USER_COMP=1 ./corsika-install < /dev/null || exit 1
+fi

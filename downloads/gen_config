@@ -1,0 +1,1420 @@
+#!/bin/csh
+
+# gen_config: Version 1.9 as of October 20, 2023.
+
+# Utility shell script to create an initial config.h file on one command line.
+# This version was adapted to CORSIKA versions 6.502 to 6.990, 
+# as well as 7.4100 to 7.7500 (although not supporting all possible features).
+# It replaces the cmz_extract file used until version 6.2xx.
+#
+# Usage with a fresh CORSIKA install (no questions asked):
+#    tar zxvf corsika-67xx.tar.gz
+#    cd corsika-67xx
+#    gen_config [ options ]
+#    ./corsika-install < /dev/null
+#
+# or, depending on your CORSIKA version,
+#
+#    tar zxvf corsika-69xx.tar.gz
+#    cd corsika-69xx
+#    gen_config [ options ]
+#    ./coconut < /dev/null
+#
+# (assuming you have gen_config somewhere in your PATH).
+#
+# Some options need a '--enable-SOMEOPTION' in coconut
+# and for proper support of those you better use the
+# corsika_build_script on top of this script and coconut.
+# For options not supported by this script and/or 
+# by corsika_build_script you will probably have to go
+# through interactive coconut steps.
+#
+# Valid options are (converted to lower case!) most CORSIKA options.
+# Example: gen_config IACT cEffic Sibyll urqmd
+# Options later on the command line generally override default options
+# and options earlier on the command line (except in some incompatible
+# cases like 'dpmjet fluka' which will not activate FLUKA).
+
+# Unless you have the MYDEFAULTS (environment) variable set,
+# we use defaults appropriate for IACT simulations.
+set mydefault = ""
+if ( "${?MYDEFAULTS}" == 0 ) then
+   set mydefaults = "iact atmext viewcone volumedet qgs2 urqmd"
+else
+   set mydefaults = "${MYDEFAULTS}"
+endif
+
+set topdir = ".."
+
+if -d ${topdir}/bernlohr then
+   echo "CORSIKA top level directory at '${topdir}'."
+else
+   if -d "./bernlohr" then
+      set topdir = "."
+      echo "CORSIKA top level directory at '${topdir}'."
+   else
+      echo "Cannot find CORSIKA top level directory.";
+      exit
+   endif
+endif
+
+if -e "${topdir}/bernlohr/iact.c" then
+   echo "bernlohr package already unpacked ..."
+else
+   ( cd "${topdir}/bernlohr" && tar zxvf `ls bernlohr-*.tar.gz | tail -1` )
+endif
+
+if -e "${topdir}/bernlohr/GNUmakefile" then
+   mv -f ${topdir}/bernlohr/GNUmakefile ${topdir}/bernlohr/GNUmakefile.org
+endif
+
+set cversion = "unknown"
+set icdate = ""
+if -f "src/corsika.F" then
+   set cversion = "`head -10 src/corsika.F | egrep '^#define __CVERSION__ ' | cut -c 22-26`"
+   set icdate = "`head -10 src/corsika.F | egrep '^#define __ICDATE__'  | cut -c 20-`"
+endif
+# echo "CVERSION='$cversion'"
+# echo "ICDATE='$icdate'"
+set cversion_main = "`echo $cversion | cut -c1-3`"
+
+set config_h = "${topdir}/lib/Linux/include/config.h"
+
+switch ( "${cversion_main}" )
+   case "6.5":
+      echo "Supported CORSIKA version 6.5"
+      breaksw;
+   case "6.6":
+      echo "Supported CORSIKA version 6.6"
+      breaksw;
+   case "6.7":
+      echo "Supported CORSIKA version 6.7"
+      breaksw;
+   case "6.9":
+      echo "Supported CORSIKA version 6.9"
+      set cvers69 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   case "7.3":
+      echo "With support for CORSIKA version 7.3"
+      set cvers69 = "1"
+      set cvers73 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   case "7.4":
+      echo "With support for CORSIKA version 7.4"
+      echo "Beware of 7.4 versions before 7.4005."
+      set cvers69 = "1"
+      set cvers74 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   case "7.5":
+      echo "With support for CORSIKA version 7.5"
+      set cvers69 = "1"
+      set cvers75 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   case "7.6":
+      echo "With support for CORSIKA version 7.6"
+      set cvers69 = "1"
+      set cvers76 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   case "7.7":
+      echo "With support for CORSIKA version 7.7"
+      set cvers69 = "1"
+      set cvers76 = "1"
+      set cvers77 = "1"
+      set config_h = "${topdir}/include/config.h"
+      breaksw;
+   default:
+      echo "Unsupported CORSIKA version ${cversion} dated `echo ${icdate} | sed 's/^\(....\)\(..\)\(..\)/\1-\2-\3/'`."
+      exit 1
+      breaksw
+endsw
+      
+# Test option: if set, do not actually extract from CMZ.
+if "$1" == "-test"  then
+   set dotest = 1
+   shift
+else
+   set dotest = 0
+endif
+
+# Check for availability of a recent gfortran version
+set gf="`gfortran -dumpversion | egrep '4\.[4-9]\.'`"
+
+if ${?F77} == 0 then
+   if "$gf" != "" then
+      echo "No Fortran compiler was specified. A recent gfortran version is available and recommended."
+      set F77="gfortran"
+      set FFLAGS="-std=legacy -frecord-marker=4"
+      setenv FFLAGS "${FFLAGS}"
+   else
+      echo "No Fortran compiler was specified. I will assume it is 'f77' (whatever that means)."
+      set F77="f77"
+   endif
+   # Only relevant if this file was sourced, otherwise setenv is irrelevant.
+   setenv F77 "${F77}"
+endif
+
+# Just a reminder
+printenv | egrep '^F77='
+printenv | egrep '^FFLAGS='
+
+setenv OTHEROPT "$*"
+setenv OPTIONS ""
+echo ""
+echo "Default options are: ${mydefaults}" 
+echo "Requested options are:" "${OPTIONS}" "${OTHEROPT}"
+echo ""
+
+set optionswanted = `echo ${OPTIONS} ${OTHEROPT} |  tr '[:upper:]' '[:lower:]'`
+
+set anahist = ""
+set annitest = ""
+set atmosphere = ""
+set augcerlong = ""
+set augerhist = ""
+set augerinfo = ""
+set byterecl = ""
+set ceffic = ""
+set cerenkopt = ""
+set cerenkov = ""
+set cerwlen = ""
+set clongopt = ""
+set compact = ""
+set coreas = ""
+set cres = ""
+set crosssection = ""
+set curved = ""
+set dynstack = ""
+set ehistory = ""
+set iact = ""
+set interaction = ""
+set inttest = ""
+set lowEmodel = "urqmd"
+set lpm = ""
+set m32=""
+set multithin = ""
+set muprod = ""
+set neutrino = ""
+set newdate = ""
+set nrrext = ""
+set os = ""
+set others = ""
+set plotsh = ""
+set preshower = ""
+set slant = ""
+set stacee = ""
+set testflag = ""
+set thin = ""
+set timerc = ""
+set unix = ""
+set upward = ""
+set viewcone = ""
+set vlibm = ""
+set volumecorr = ""
+set volumedet = ""
+set with_gf = "0"
+
+#
+# Attempt automatic detection of operating system.
+# Should work on Linux, OSF1 (DecUnix/Tru64), and HP-UX.
+#
+if "`uname | tr L l`" == "linux" then
+   set os = "linux"
+   set unix = "unix"
+   set byterecl = "byterecl"
+   if ( "${F77}" =~ "*g77*" ) then
+      echo "It seems that you are using the GNU Fortran 77 compiler (g77)."
+      echo "This should still work. Details may depend on the version used."
+      set with_g77 = "1"
+   else
+      if ( "${F77}" =~ "*gfortran*" ) then
+         echo "It seems that you are using the GNU Fortran 95 compiler (gfortran)."
+         echo "You may need the '-std=legacy' option for compiling CORSIKA."
+         if ( "${F77}" != "gfortran" ) then
+            echo "Note that coconut requires exactly F77=gfortran"
+            echo "Your F77 setting may not get recognized for preparing config.h"
+         endif
+         set with_gf = "1"
+      else
+         echo "Your Fortran compiler command is: ${F77}"
+      endif
+   endif
+   if ( { (gcc --help >& /dev/null) } ) then
+      set newdate = "newdate"
+   else
+      set timerc = "timerc"
+   endif
+else
+ if ( "`uname`" == "OSF1" ) then
+   set os = "decunix"
+   set unix = "unix"
+   set newdate = "newdate"
+#  Using GNU g77 even on DEC UNIX means RECL in bytes!
+   if ( "${F77}" == "g77" ) then
+      byterecl = "byterecl"
+   endif
+ else
+  if "`uname`" == "HP-UX" then
+   set os = "hpux" # better use "linux" with older CORSIKA versions
+   set unix = "unix"
+   set byterecl = "byterecl"
+   if ( "${F77}" == "f77" ) then
+#  Old-fashioned HP Fortran compiler needs timer.c
+      set timerc = "timerc"
+   else
+#  You might prefer to compile with gcc/g77 on HP-UX.
+      if ( { (gcc --help >& /dev/null) } ) then
+         set newdate = "newdate"
+      else
+         set timerc = "timerc"
+      endif
+   endif
+  else
+   echo "******************************************************************"
+   echo "Operating system `uname` is not yet known to this script."
+   echo "Assuming that is is a UNIX-like system with Fortran RECL parameter"
+   echo "measured in units of bytes. Please correct me if that is wrong."
+   echo "******************************************************************"
+   set os = "`uname`"
+   set unix = "unix"
+   set newdate = "newdate"
+   set byterecl = "byterecl"
+  endif
+ endif
+endif
+
+echo ""
+
+foreach option ( $mydefaults $optionswanted )
+   switch ( $option )
+
+# Compiler-oriented options to be catched elsewhere
+# -------------------------------------------------
+
+      case "native":
+      case "generic":
+      case "debug":
+         breaksw
+
+#
+# Operating system selection
+# --------------------------
+# (Note: UNIX is for UNIX-like systems in general,
+# decunix and linux are no longer used but included 
+# for backwards compatibility; IBM means IBM mainframe.)
+#
+      case "unix":
+      case "decunix":
+      case "hpux":
+      case "linux":
+      case "vms"
+      case "mac":
+      case "ibm":
+#     case "transp":
+         set os = "$option"
+	 if ( "$os" == "decunix" || "$os" == "linux" || "$os" == "hpux" ) then
+	    set unix = "unix"
+	 else
+	    set unix = ""
+	 endif
+         breaksw
+#     Fortran RECL parameter in OPEN statement is in units of bytes
+      case "byterecl":
+         set byterecl = "byterecl"
+         breaksw
+#     Fortran RECL parameter in OPEN statement is in units of 4-byte words
+      case "wordrecl":
+         set byterecl = ""
+         breaksw
+
+#
+# Date and Time:
+# --------------
+#
+#     What was used to be the NEWDATE option is now the default:
+      case "newdate":
+         set newdate = "newdate"
+	 set timerc = ""
+         breaksw
+#     Remove any NEWDATE option from the list:
+      case "no-newdate":
+         set newdate = ""
+         breaksw
+#     Use OLDDATE option for what was the default date&time setting before 5.91
+      case "olddate":
+         set newdate = "olddate"
+	 set timerc = ""
+         breaksw
+#     Another old date variant (for Linux):
+      case "olddate2":
+         set newdate = "olddate2"
+	 set timerc = ""
+         breaksw
+#     One more variant (for IBM AIX ?):
+      case "ibmrisc":
+         set newdate = "ibmrisc"
+	 set timerc = ""
+         breaksw
+#     Remove any OLDDATE option from the list:
+      case "no-olddate":
+         set newdate = ""
+         breaksw
+#     When date and time routines need timer.c module:
+      case "timerc":
+      	 set timerc = "timerc"
+	 set newdate = ""
+	 breaksw
+
+#   
+# Various external high-energy hadronic interaction models:
+# ---------------------------------------------------------
+#
+
+# VENUS:
+      case "venus":
+         set interaction = "$option"
+	 echo "Using VENUS interaction model"
+         breaksw
+# Sibyll:
+      case "sibyll=new":
+      case "sibyll":
+      	 set interaction = "sibyll"
+	 echo "Using SIBYLL interaction model."
+         breaksw
+# DPMJET:
+      case "dpmjet":
+         set interaction = "dpmjet"
+	 echo "Using DPMJET interaction model."
+         if ( "${lowEmodel}" == "fluka" ) then
+            echo "DPMJET and FLUKA are incompatible."
+            lowEmodel = "gheisha"
+         endif
+         breaksw
+# NeXus
+      case "nexus":
+         set interaction = "$option"
+	 echo "Using NEXUS interaction model."
+         if -e nexus/nexus.inc then
+         else
+            ( cd nexus && tar zxvf nexus*_cors.tar.gz )
+         endif
+         breaksw
+#     QGSjet with adapted cross sections:
+      case "qgsjet":
+      case "qgsjet1":
+      case "qgsjet01":
+      case "qgsjet01c":
+      case "qgs":
+      case "qgs1":
+      case "qgs01c":
+         if -e "${topdir}/src/qgsjet01c.f" then
+            set interaction = "qgsjet qgs01c"
+	    echo "Using QGSJET01c interaction model with increased N-air cross section."
+         endif
+         if -e "${topdir}/src/qgsjet01d.f" then
+            set interaction = "qgsjet qgs01c"
+	    echo "Using QGSJET01d interaction model."
+         endif
+         breaksw
+#     QGSjet with old cross sections:
+      case "qgsjetold":
+      case "qgsjet=old":
+         if -e "${topdir}/src/qgsjet01c.f" then
+            set interaction = "qgsjet qgsjetold qgs01c"
+	    echo "Using QGSJET01c interaction model with original N-air cross section."
+         endif
+         breaksw
+# QGSjet II:
+      case "qgs2":
+      case "qgsjet2":
+      case "qgsii":
+      case "qgsII":
+         if -e "${topdir}/src/qgsjet-II-03.f" then
+            set interaction = "qgsII"
+	    echo "Using QGSJET II interaction model (version 3)."
+         endif
+         if -e "${topdir}/src/qgsjet-II-04.f" then
+            set interaction = "qgsII"
+	    echo "Using QGSJET II interaction model (version 4)."
+         endif
+         breaksw
+# EPOS:
+      case "epos":
+         if -e "${topdir}/epos/epos160_cors.tar.gz" then
+            set interaction = "epos"
+	    echo "Using EPOS interaction model version 1.60."
+         endif
+         if -e "${topdir}/epos/epos-lhc-v3400_cors.tar.gz" then
+            set interaction = "epos"
+	    echo "Using EPOS interaction model version 3.400 (LHC)."
+         endif
+         breaksw
+
+#
+# Low-energy interaction models:
+# ------------------------------
+#
+
+#    HDPM interaction model (no longer supported):
+#     case "hdpm":
+#        set interaction = ""
+#        set crosssection = ""
+#        breaksw
+
+#     GHEISHA low-energy hadronic interaction model was optional in
+#     older CORSIKA versions and is now (almost) always included.
+#     This option is on by default:
+      case "gheisha":
+         set lowEmodel = "gheisha"
+         echo "Using GHEISHA low-energy model."
+         breaksw
+#     URQMD interaction model for low-energy interactions:
+      case "urqmd":
+      	 set lowEmodel = "urqmd" # Deselects GHEISHA interface.
+         echo "Using URQMD low-energy model."
+         if -e urqmd/urqmd.f then
+         else
+            ( cd urqmd && tar zxvf urqmd*.tar.gz )
+         endif
+	 breaksw
+#    FLUKA interaction model for low-energy interactions:
+      case "fluka":
+      case "flukacern":
+      case "flukainfo":
+         if ( "${interaction}" != "dpmjet" ) then
+      	    set lowEmodel = "$option" # Deselects GHEISHA interface.
+            echo "Using FLUKA low-energy model."
+         else
+            echo "Cannot use FLUKA low-energy model: incompatible with DPMJET."
+         endif
+         set m32 = "m32" # FLUKA probably still only available in 32-bit version
+	 breaksw
+
+#
+# Cherenkov light options:
+# ------------------------
+#
+#     Switch Cherenkov light emission off:
+      case "no-cherenkov":
+      case "no-cerenkov":
+      case "cherenkov=off":
+      case "cerenkov=off":
+#        Switch of external atmospheres as well. Use 'cherenkov=off atmext' 
+#        to use external atmospheres but no Cherenkov light.
+         set atmosphere = ""
+         set cerenkov = ""
+         set cerenkopt = ""
+         set iact = ""
+         echo "No Cherenkov light"
+         breaksw
+
+#     Cherenkov light emission (either built-in method or with IACT extension):
+      case "cerenkov":
+      case "cherenkov":
+      case "cerenkov=on":
+      case "cherenkov=on":
+         set cerenkov = "cerenkov"
+         set cres = ""
+         set inttest = ""
+         breaksw
+
+#     Wavelength-dependence of refraction index taken into account:
+      case "cerwlen":
+         set cerwlen = "cerwlen"
+         set cerenkov = "cerenkov"
+         set cerenkopt = ""
+         set cres = ""
+         set inttest = ""
+         breaksw
+
+#     Interface to external IACT extension (iact.c etc.) without iactext:
+      case "iact":
+         set cerenkov = "cerenkov"
+         set iact = "iact"
+         set cres = ""
+         set inttest = ""
+         breaksw
+
+#     No-grid option to IACT extension (implies at least 'iact' but
+#     does not reset any preceding 'iactext'):
+      case "iact-no-grid":
+         set cerenkov = "cerenkov"
+         if ( "${iact}" == "" ) then
+            iact = "iact"
+         endif
+         set cres = ""
+         set inttest = ""
+         breaksw
+
+#     Activate 'iactext' extension for telout function parameters
+#     also triggered by options for info about emitting particles:
+      case "iactext":
+      case "store-emitter":
+      case "mark-direct":
+         set cerenkov = "cerenkov"
+         set cerenkopt = ""
+         set iact = "iact iactext"
+         set cres = ""
+         set inttest = ""
+	 breaksw
+
+#     Cherenkov 'longitudinal' distribution is integrated down to 
+#     observation level (which is wasting CPU time):
+      case "intclong":
+      	 set clongopt = "intclong"
+	 breaksw
+
+#     No Cherenkov 'longitudinal' (vertical) distribution:
+      case "noclong":
+      	 set clongopt = "noclong"
+	 breaksw
+
+#     Atmospheric transmission, mirror reflectivity, and quantum efficiency
+#     applied in Corsika rather than in the following detector simulation:
+      case "ceffic":
+      case "ceffic=on":
+      	 set ceffic = "ceffic"
+         set cerenkov = "cerenkov"
+         set cerenkopt = ""
+	 set curved = ""
+	 breaksw
+      case "no-ceffic":
+      case "ceffic=off":
+      	 set ceffic = ""
+	 breaksw
+
+#     Vectorized optimization of Cherenkov emission (requires additional code):
+#     (Note that the optimized C code is incompatible with many options in the FORTRAN code.)
+      case cerenkopt:
+      case cherenkopt:
+      case cerenkopt=on:
+      case cherenkopt=on:
+         set augcerlong = ""
+         set augerhist = ""
+         set iact="iact"
+      	 set ceffic = ""
+         set cerenkov = "cerenkov"
+         set cerwlen = ""
+	 set curved = ""
+         set cres = ""
+         set inttest = ""
+         set cerenkopt = "cerenkopt"
+	 breaksw
+      case no-cerenkopt:
+      case no-cherenkopt:
+      case cerenkopt=off:
+      case cherenkopt=off:
+         set cerenkopt = ""
+	 breaksw
+# Mathematical library for vectorized code (needs to be enabled separately):
+      case vlibm:
+      case vlibm=on:
+         set vlibm = "vlibm"
+	 breaksw
+      case no-vlibm:
+      case vlibm=off:
+         set vlibm = ""
+	 breaksw
+
+#
+# Experiment-specific options:
+# ----------------------------
+#
+
+#     STACEE output format:
+      case "stacee":
+         set stacee = "stacee"
+         set cerenkov = "cerenkov"
+         set cerenkopt = ""
+         set thin = "thin"
+         set multithin = ""
+      	 set ceffic = "ceffic"
+         set iact = ""
+         set inttest = ""
+         set volumecorr = ""
+         set compact = ""
+         breaksw
+#     AUGER info file instead of 'dbase' file:
+      case "auger":
+      case "augerinfo":
+#        The corresponding CMZ option changed name between 6.005 and 6.010.
+#        Support both variants.
+      	 set augerinfo = "auger augerinfo"
+         breaksw
+#     AUGER histogram format:
+      case "augerhist":
+         set augerhist = "augerhist"
+         set thin = "thin"
+         set augerinfo = "augerinfo"
+         set cerenkov = ""
+         set cerenkopt = ""
+         set iact = ""
+         set ceffic = ""
+         set inttest = ""
+         breaksw
+#     AUGER longitudinal distributions:
+      case "augcerlong":
+         set augcerlong = "augcerlong"
+         set cerenkov = ""
+         set cerenkopt = ""
+         set iact = ""
+         set ceffic = ""
+         set inttest = ""
+         breaksw
+#     LPM effect without thinning
+      case "lpm":
+      	 set lpm = "lpm"
+         breaksw
+#     Electromagnetic preshower in geomagnetic field:
+      case "preshower":
+         set preshower = "preshower"
+         set inttest = ""
+         set curved = ""
+         breaksw
+
+#
+# Shower direction:
+# -----------------
+#
+
+#     New option for viewing cone around fixed theta+phi:
+      case "viewcone":
+         set viewcone = "viewcone"
+	 set volumecorr = ""
+	 breaksw
+
+#
+# Detector geometry:
+# ------------------
+#
+#     With angular correction for cylindrical volume detector
+      case "volumecorr":
+         set volumecorr = "volumecorr"
+         set volumedet = ""
+         set cerenkov = ""
+         set iact = ""
+         breaksw
+#     Isotropic angular distribution for spherical volume detector
+      case "volumedet":
+         set volumedet = "volumedet"
+         set volumecorr = ""
+         breaksw
+      case "no-volumedet":
+      case "volumedet=off":
+         set volumedet = ""
+         breaksw
+
+#
+# Atmospheric geometry:
+# ---------------------
+#
+#     New treatment of large-zenith-angle showers
+      case "curved":
+         set curved = "curved"
+	 set ceffic = ""
+         set inttest = ""
+         set plotsh = ""
+         set upward = ""
+         set augerhist = ""
+         set preshower = ""
+         set cerenkopt = ""
+         breaksw
+
+#
+# Atmospheric profile:
+# --------------------
+#
+#     Include interface for external atmospheres (atmo.c):
+      case "atmext":
+         set atmosphere = "atmext"
+         set inttest = ""
+         breaksw
+      case "no-atmext":
+         set atmosphere = ""
+         breaksw
+
+#
+# Extra particle output:
+# ----------------------
+#
+      case "ehistory":
+         set ehistory = "ehistory"
+         breaksw
+      case "muprod":
+         set muprod = "muprod"
+         breaksw
+
+#
+# Further options:
+# ----------------
+#
+#     Longitudinal distributions are along shower direction:
+      case "slant":
+         set slant = "slant"
+         breaksw
+#     Neutrinos included in particle output:
+      case "neutrino":
+         set neutrino = "neutrino"
+         set inttest = ""
+         set cerenkov = ""
+         breaksw
+#     'Thinning' of showers:
+      case "thin":
+         set thin = "thin"
+         set cres = ""
+         set inttest = ""
+         set plotsh = ""
+         set cerenkopt = ""
+         breaksw
+      case "multithin":
+         set thin = "thin"
+         set cres = ""
+         set inttest = ""
+         set plotsh = ""
+         set cerenkopt = ""
+         breaksw
+#     Radio emission:
+      case "coreas":
+         set coreas = "coreas"
+         breaksw
+#     Different management of particle stacks
+      case "dynstack":
+         set dynstack = "dynstack"
+         breaksw
+#     Analysis histograms (best used with thinning)
+      case "anahist":
+         set anahist = "anahist"
+         set thin = "thin"
+         set cerenkov = ""
+         set iact = ""
+         set ceffic = ""
+         set curved = ""
+         set plotsh = ""
+         set inttest = ""
+         breaksw
+#     Upward moving showers:
+      case "upward":
+         set upward = "upward"
+         set curved = ""
+         set inttest = ""         
+         breaksw
+#     Annitest cross-section:
+      case "annitest":
+         set annittest = "annitest"
+         breaksw
+#     Test flag:
+      case "test":
+         set testflag = "test"
+         breaksw
+#     Interaction test version:
+      case "inttest":
+         set inttest = "inttest"
+         set atmosphere = ""
+         set cerenkov = ""
+         set cerenkopt = ""
+         set iact = ""
+         set ceffic = ""
+         set cres = ""
+         set curved = ""
+         set upward = ""
+         set viewcone = ""
+         set anahist = ""
+         set augerhist = ""
+         set augcerlong = ""
+         set preshower = ""
+         set stacee = ""
+         set compact = ""
+         set neutrino = ""
+         set plotsh = ""
+         set thin = ""
+         set multithin = ""
+         breaksw
+#     Special version for plotting particle tracks in showers:
+      case "plotsh":
+         set plotsh = "plotsh"
+         set cres = ""
+         set curved = ""
+         set inttest = ""
+         breaksw
+      case "plotsh2":
+         set plotsh = "plotsh2"
+         set cres = ""
+         set curved = ""
+         set inttest = ""
+         breaksw
+#     Compact output:
+      case "compact":
+         set cerenkov = ""
+      	 set compact = "compact"
+         set iact = ""
+         set inttest = ""
+         set stacee = ""
+         breaksw
+      case "m32":
+         set m32 = "m32"
+	 breaksw
+      case "no-m32":
+         set m32 = ""
+	 breaksw
+      case "nrrext":
+         set nrrext = "nrrext"
+         breaksw
+
+#
+# Reset all options to standard (no Cherenkov, no external atmospheres):
+# ----------------------------------------------------------------------
+#
+#     Short-hand option for setting basic options, overriding most previous settings:
+      case "standard":
+      case "default":
+         set anahist = ""
+         set annitest = ""
+         set atmosphere = ""
+         set augcerlong = ""
+         set augerhist = ""
+         set augerinfo = ""
+         set byterecl = ""
+         set ceffic = ""
+         set cerenkopt = ""
+         set cerenkov = ""
+         set cerwlen = ""
+         set clongopt = ""
+         set compact = ""
+         set coreas = ""
+         set cres = ""
+         set crosssection = ""
+         set curved = ""
+         set dynstack = ""
+         set ehistory = ""
+         set iact = ""
+         set interaction = ""
+         set inttest = ""
+	 # GHEISHA is no longer used by default. Use URQMD by default now:
+         set lowEmodel = "urqmd"
+         set lpm = ""
+	 set m32 = ""
+         set multithin = ""
+         set muprod = ""
+         set neutrino = ""
+         set newdate = ""
+         set nrrext = ""
+         set os = ""
+         set others = ""
+         set plotsh = ""
+         set preshower = ""
+         set slant = ""
+         set stacee = ""
+         set testflag = ""
+         set thin = ""
+         set timerc = ""
+         set unix = ""
+         set upward = ""
+         set viewcone = ""
+         set vlibm = ""
+         set volumecorr = ""
+         set volumedet = ""
+         breaksw
+
+#
+# Anything else is bad:
+# ---------------------
+#
+      default:
+         echo "Unknown option ${option}"
+         exit 1
+   endsw
+end
+
+set optionsel = ""
+set optionsel = "`echo ${optionsel} ${anahist}`"
+set optionsel = "`echo ${optionsel} ${annitest}`"
+set optionsel = "`echo ${optionsel} ${atmosphere}`"
+set optionsel = "`echo ${optionsel} ${augcerlong}`"
+set optionsel = "`echo ${optionsel} ${augerhist}`"
+set optionsel = "`echo ${optionsel} ${augerinfo}`"
+set optionsel = "`echo ${optionsel} ${byterecl}`"
+set optionsel = "`echo ${optionsel} ${ceffic}`"
+set optionsel = "`echo ${optionsel} ${cerenkopt}`"
+set optionsel = "`echo ${optionsel} ${cerenkov}`"
+set optionsel = "`echo ${optionsel} ${cerwlen}`"
+set optionsel = "`echo ${optionsel} ${clongopt}`"
+set optionsel = "`echo ${optionsel} ${compact}`"
+set optionsel = "`echo ${optionsel} ${coreas}`"
+set optionsel = "`echo ${optionsel} ${cres}`"
+set optionsel = "`echo ${optionsel} ${crosssection}`"
+set optionsel = "`echo ${optionsel} ${curved}`"
+set optionsel = "`echo ${optionsel} ${dynstack}`"
+set optionsel = "`echo ${optionsel} ${ehistory}`"
+set optionsel = "`echo ${optionsel} ${iact}`"
+set optionsel = "`echo ${optionsel} ${interaction}`"
+set optionsel = "`echo ${optionsel} ${inttest}`"
+set optionsel = "`echo ${optionsel} ${lowEmodel}`"
+set optionsel = "`echo ${optionsel} ${lpm}`"
+set optionsel = "`echo ${optionsel} ${m32}`"
+set optionsel = "`echo ${optionsel} ${multithin}`"
+set optionsel = "`echo ${optionsel} ${muprod}`"
+set optionsel = "`echo ${optionsel} ${neutrino}`"
+set optionsel = "`echo ${optionsel} ${newdate}`"
+set optionsel = "`echo ${optionsel} ${nrrext}`"
+set optionsel = "`echo ${optionsel} ${os}`"
+set optionsel = "`echo ${optionsel} ${others}`"
+set optionsel = "`echo ${optionsel} ${plotsh}`"
+set optionsel = "`echo ${optionsel} ${preshower}`"
+set optionsel = "`echo ${optionsel} ${slant}`"
+set optionsel = "`echo ${optionsel} ${stacee}`"
+set optionsel = "`echo ${optionsel} ${testflag}`"
+set optionsel = "`echo ${optionsel} ${thin}`"
+set optionsel = "`echo ${optionsel} ${timerc}`"
+set optionsel = "`echo ${optionsel} ${unix}`"
+set optionsel = "`echo ${optionsel} ${upward}`"
+set optionsel = "`echo ${optionsel} ${viewcone}`"
+set optionsel = "`echo ${optionsel} ${vlibm}`"
+set optionsel = "`echo ${optionsel} ${volumecorr}`"
+set optionsel = "`echo ${optionsel} ${volumedet}`"
+
+echo ""
+echo "Selected options are:  ${optionsel}"
+echo ""
+if  "${byterecl}" == "byterecl"  then
+   echo "Your RECL parameter for unformatted direct-access I/O is in units"
+   echo "of bytes (unless system-specific code overrides that)."
+   if "${os}" == "linux" then
+      echo "This should be o.k. with GNU g77 or gfortran on Linux systems."
+   else
+      echo "This should be o.k. with GNU g77 on Linux, DEC Unix, and HP-UX."
+      echo "It might give bad results if compiling the extracted source with"
+      echo "DEC (now HP/Compaq) f77 on DEC Unix (now Tru64) or Ultrix, unless"
+      echo "you are using the '-assume byterecl' compiler option."
+   endif
+else
+   echo "Your RECL parameter for unformatted direct-access I/O is in units"
+   echo "of 4-byte words (unless system-specific code overrides that)."
+   echo "This should be o.k. if compiling on DEC Unix (now HP/Compaq Tru64) or"
+   echo "Ultrix with their f77 compiler and you are not using the compiler"
+   echo "option '-assume byterecl'. It is perhaps also o.k. under VMS."
+   if  "${os}" == "decunix"  then
+      echo "If compiling the extracted source with other compilers (e.g. GNU g77)"
+      echo "or with DEC f77 with '-assume byterecl' option, results from"
+      echo "CORSIKA will be definitely in error."
+      if "${F77}" =~ "g77*" then
+         exit 1
+      endif
+   else
+      if "${os}" == "linux"  then
+         echo "In the older CORSIKA implementations this option was always"
+	 echo "overriden to have RECL in bytes for Linux (assuming GNU g77)."
+	 echo "Since this has changed in newer implementations, you are advised"
+	 echo "to use the 'byterecl' option (which should be the default)."
+	 exit 1
+      endif
+   endif
+endif
+
+if "$cerenkov" == "cerenkov" then
+  if "$iact" == "iact" then
+   echo ""; echo "Recommendation for your CORSIKA input file:"
+   if "$ceffic" == "ceffic" then
+      echo "A photon bunch size (CERSIZ) of 1.0 seems appropriate with CEFFIC."
+   else if "$cerwlen" == "cerwlen" then
+      echo "A photon bunch size (CERSIZ) of about 2.0 (or less) seems appropriate with CERWLEN."
+   else
+      echo "A photon bunch size (CERSIZ) of about 5.0 (or less) seems appropriate."
+      echo "(assuming your typical quantum efficiency is of the order of 20%)."
+      echo "With high-QE PMTs, CERSIZ of about 3.0 would be a safer choice."
+   endif
+  endif
+endif
+
+if  "$dotest" == 1 then
+   echo ""; echo "Nothing is extracted now (because of -test option)."; echo ""
+   exit
+endif
+
+if -e "${config_h}" then
+   echo "${config_h} renamed as config.h.bak"
+   mv -f ${config_h} ${config_h}.bak
+else
+   mkdir -p "${topdir}/lib/Linux/include"
+endif
+cp -f ${config_h}.in ${config_h}
+touch "${config_h}"
+
+if ( "${interaction}" == "venus" ) then
+   echo "#define __VENUS__ 1" >> ${config_h}
+else if ( "${interaction}" == "dpmjet" ) then
+   echo "#define __DPMJET__ 1" >> ${config_h}
+else if ( "${interaction}" == "sibyll" ) then
+   echo "#define __SIBYLL__ 1" >> ${config_h}
+else if ( "${interaction}" == "nexus" ) then
+   echo "#define __NEXUS__ 1" >> ${config_h}
+else if ( "${interaction}" == "qgsjet" ) then
+   echo "#define __QGSJET__ 1" >> ${config_h}
+else if ( "${interaction}" == "qgsjet qgs01c" ) then
+   echo "#define __QGSJET__ 1" >> ${config_h}
+   echo "#define __QGSJETOLD__ 1" >> ${config_h}
+else if ( "${interaction}" == "qgsjet qgsjetold ggs01c" ) then
+   echo "#define __QGSJET__ 1" >> ${config_h}
+   echo "#define __QGSJETOLD__ 1" >> ${config_h}
+else if ( "${interaction}" == "qgsjet qgsII" ) then
+   echo "#define __QGSJET__ 1" >> ${config_h}
+   echo "#define __QGSII__ 1" >> ${config_h}
+else if ( "${interaction}" == "qgsII" ) then
+   echo "#define __QGSII__ 1" >> ${config_h}
+else if ( "${interaction}" == "epos" ) then
+   echo "#define __EPOS__ 1" >> ${config_h}
+endif
+
+if ( "${lowEmodel}" == "gheisha" ) then
+   echo "#define __GHEISHA__ 1" >> ${config_h}
+else if ( "${lowEmodel}" == "fluka" ) then
+   echo "#define __FLUKA__ 1" >> ${config_h}
+else if ( "${lowEmodel}" == "flukacern" ) then
+   echo "#define __FLUKA__ 1" >> ${config_h}
+   echo "#define __FLUKACERN__ 1" >> ${config_h}
+else if ( "${lowEmodel}" == "flukainfn" ) then
+   echo "#define __FLUKA__ 1" >> ${config_h}
+   echo "#define __FLUKAINFN__ 1" >> ${config_h}
+else if ( "${lowEmodel}" == "urqmd" ) then
+   echo "#define __URQMD__ 1" >> ${config_h}
+endif
+
+if ( "${cerenkov}" == "cerenkov" ) then
+   echo "#define __CERENKOV__ 1" >> ${config_h}
+endif
+if ( "${cerenkopt}" == "cerenkopt" ) then
+   echo "#define __CERENKOPT__ 1" >> ${config_h}
+endif
+
+if ( "${iact}" == "iact" ) then
+   echo "#define __IACT__ 1" >> ${config_h}
+else if ( "${iact}" == "iact iactext" ) then
+   echo "#define __IACT__ 1" >> ${config_h}
+   echo "#define __IACTEXT__ 1" >> ${config_h}
+endif
+
+if ( "${cerwlen}" == "cerwlen" ) then
+   echo "#define __CERWLEN__ 1" >> ${config_h}
+endif
+
+if ( "${clongopt}" == "intclong" ) then
+   echo "#define __INTCLONG__ 1" >> ${config_h}
+endif
+
+if ( "${clongopt}" == "noclong" ) then
+   echo "#define __NOCLONG__ 1" >> ${config_h}
+endif
+
+if ( "${ceffic}" == "ceffic" ) then
+   echo "#define __CEFFIC__ 1" >> ${config_h}
+endif
+
+if ( "${stacee}" == "stacee" ) then
+   echo "#define __STACEE__ 1" >> ${config_h}
+endif
+
+if ( "${augcerlong}" == "augcerlong" ) then
+   echo "#define __AUGCERLONG__ 1" >> ${config_h}
+endif
+
+if ( "${cerenkov}" == "" ) then
+   set cerenkopt = ""
+endif
+if ( "${cerenkopt}" == "cerenkopt" ) then
+   echo "#define __CERENKOPT__ 1" >> ${config_h}
+endif
+if ( "${vlibm}" == "vlibm" ) then
+   echo "#define __VLIBM__ 1" >> ${config_h}
+endif
+
+if ( "${viewcone}" == "viewcone" ) then
+   echo "#define __VIEWCONE__ 1" >> ${config_h}
+endif
+
+if ( "${volumecorr}" == "volumecorr" ) then
+   echo "#define __VOLUMECORR__ 1" >> ${config_h}
+endif
+
+if ( "${volumedet}" == "volumedet" ) then
+   echo "#define __VOLUMEDET__ 1" >> ${config_h}
+endif
+
+if ( "${curved}" == "curved" ) then
+   echo "#define __CURVED__ 1" >> ${config_h}
+endif
+
+if ( "${coreas}" == "coreas" ) then
+   echo "#define __COREAS__ 1" >> ${config_h}
+endif
+
+if ( "${atmosphere}" == "atmext" ) then
+   echo "#define __ATMEXT__ 1" >> ${config_h}
+endif
+
+if ( "${slant}" == "slant" ) then
+   echo "#define __SLANT__ 1" >> ${config_h}
+endif
+
+if ( "${preshower}" == "preshower" ) then
+   echo "#define __PRESHOWER__ 1" >> ${config_h}
+endif
+
+if ( "${lpm}" == "lpm" ) then
+   echo "#define __LPM__ 1" >> ${config_h}
+endif
+
+if ( "${preshower}" == "preshower" ) then
+   echo "#define __PRESHOWER__ 1" >> ${config_h}
+endif
+
+if ( "${upward}" == "upward" ) then
+   echo "#define __UPWARD__ 1" >> ${config_h}
+endif
+
+if ( "${thin}" == "thin" ) then
+   echo "#define __THIN__ 1" >> ${config_h}
+endif
+if ( "${multithin}" == "multithin" ) then
+   echo "#define __MULTITHIN__ 1" >> ${config_h}
+endif
+
+if ( "${anahist}" == "anahist" ) then
+   echo "#define __ANAHIST__ 1" >> ${config_h}
+endif
+
+if ( "${inttest}" == "inttest" ) then
+   echo "#define __INTTEST__ 1" >> ${config_h}
+endif
+
+if ( "${dynstack}" == "dynstack" ) then
+   echo "#define __DYNSTACK__ 1" >> ${config_h}
+endif
+
+if ( "${ehistory}" == "ehistory" ) then
+   echo "#define __EHISTORY__ 1" >> ${config_h}
+endif
+if ( "${muprod}" == "muprod" ) then
+   echo "#define __MUPROD__ 1" >> ${config_h}
+endif
+
+if ( "${neutrino}" == "neutrino" ) then
+   echo "#define __NEUTRINO__ 1" >> ${config_h}
+endif
+
+if ( "${nrrext}" == "nrrext" ) then
+   echo "#define __NRREXT__ 1" >> ${config_h}
+endif
+
+if ( "${compact}" == "compact" ) then
+   echo "#define __COMPACT__ 1" >> ${config_h}
+endif
+
+if ( "${testflag}" == "test" ) then
+   echo "#define __TEST__ 1" >> ${config_h}
+endif
+
+if ( "${byterecl}" == "byterecl" ) then
+   echo "#define __BYTERECL__ 1" >> ${config_h}
+endif
+
+if ( "${newdate}" == "newdate" ) then
+   echo "#define __NEWDATE__ 1" >> ${config_h}
+else if ( "${newdate}" == "olddate" ) then
+   echo "#define __OLDDATE__ 1" >> ${config_h}
+else if ( "${newdate}" == "olddate2" ) then
+   echo "#define __OLDDATE2__ 1" >> ${config_h}
+else if ( "${newdate}" == "ibmrisc" ) then
+   echo "#define __IBMRISC__ 1" >> ${config_h}
+endif
+
+if ( "${timerc}" == "timerc" ) then
+   echo "#define __TIMERC__ 1" >> ${config_h}
+endif
+
+if ( "${unix}" == "unix" ) then
+   echo "#define __UNIX__ 1" >> ${config_h}
+endif
+
+if ( "${with_gf}" == "1" ) then
+   echo "#define __GFORTRAN__ 1" >> ${config_h}
+endif
+
+echo "#define __SAVEDCORS__ 1" >> ${config_h}
+
+# Note that 'cvers69' is also set for any 7.x versions.
+if ( "${cvers69}" == "1" ) then
+
+   if ( "${interaction}" == "venus" ) then
+      echo "#define __CACHE_VENUS__" >> ${config_h}
+   else if ( "${interaction}" == "dpmjet" ) then
+      echo "#define __CACHE_DPMJET__" >> ${config_h}
+   else if ( "${interaction}" == "sibyll" ) then
+      echo "#define __CACHE_SIBYLL__" >> ${config_h}
+   else if ( "${interaction}" == "nexus" ) then
+      echo "#define __CACHE_NEXUS__" >> ${config_h}
+   else if ( "${interaction}" == "qgsjet" ) then
+      echo "#define __CACHE_QGSJETII__" >> ${config_h}
+   else if ( "${interaction}" == "qgsjet qgs01c" ) then
+      echo "#define __CACHE_QGSJET01__" >> ${config_h}
+   else if ( "${interaction}" == "qgsjet qgsjetold ggs01c" ) then
+      echo "#define __CACHE_QGSJET01__" >> ${config_h}
+   else if ( "${interaction}" == "qgsjet qgsII" ) then
+      echo "#define __CACHE_QGSJETII__" >> ${config_h}
+   else if ( "${interaction}" == "qgsII" ) then
+      echo "#define __CACHE_QGSJETII__" >> ${config_h}
+   else if ( "${interaction}" == "epos" ) then
+      echo "#define __CACHE_EPOS__" >> ${config_h}
+   endif
+
+   if ( "${lowEmodel}" == "gheisha" ) then
+      echo "#define __CACHE_GHEISHA__" >> ${config_h}
+   else if ( "${lowEmodel}" == "fluka" ) then
+      echo "#define __CACHE_FLUKA__" >> ${config_h}
+   else if ( "${lowEmodel}" == "flukacern" ) then
+      echo "#define __CACHE_FLUKA__" >> ${config_h}
+      echo "#define __CACHE_FLUKACERN__" >> ${config_h}
+   else if ( "${lowEmodel}" == "flukainfn" ) then
+      echo "#define __CACHE_FLUKA__" >> ${config_h}
+      echo "#define __CACHE_FLUKAINFN__" >> ${config_h}
+   else if ( "${lowEmodel}" == "urqmd" ) then
+      echo "#define __CACHE_URQMD__" >> ${config_h}
+   endif
+
+   if ( "${cerenkov}" == "cerenkov" ) then
+      echo "#define __CACHE_CERENKOV__" >> ${config_h}
+   endif
+   if ( "${cerenkopt}" == "cerenkopt" ) then
+      echo "#define __CACHE_CERENKOPT__" >> ${config_h}
+   endif
+   if ( "${vlibm}" == "vlibm" ) then
+      echo "#define __CACHE_VLIBM__" >> ${config_h}
+   endif
+
+   if ( "${iact}" == "iact" ) then
+      echo "#define HAVE_BERNLOHR 1" >> ${config_h}
+      echo "#define __CACHE_IACT__"  >> ${config_h}
+   else if ( "${iact}" == "iact iactext" ) then
+      echo "#define HAVE_BERNLOHR 1" >> ${config_h}
+      echo "#define __CACHE_IACT__" >> ${config_h}
+      echo "#define __CACHE_IACTEXT__" >> ${config_h}
+   endif
+
+   if ( "${atmosphere}" == "atmext" ) then
+      echo "#define __CACHE_ATMEXT__" >> ${config_h}
+   endif
+
+   if ( "${cerwlen}" == "cerwlen" ) then
+      echo "#define __CERWLEN__ 1" >> ${config_h}
+   endif
+
+   if ( "${clongopt}" == "intclong" ) then
+      echo "#define __CACHE_INTCLONG__" >> ${config_h}
+   endif
+
+   if ( "${clongopt}" == "noclong" ) then
+      echo "#define __CACHE_NOCLONG__" >> ${config_h}
+   endif
+
+   if ( "${ceffic}" == "ceffic" ) then
+      echo "#define __CACHE_CEFFIC__" >> ${config_h}
+   endif
+
+   if ( "${coreas}" == "coreas" ) then
+      echo "#define __CACHE_COREAS__" >> ${config_h}
+   endif
+
+   if ( "${stacee}" == "stacee" ) then
+      echo "#define __CACHE_STACEE__" >> ${config_h}
+   endif
+
+   if ( "${augcerlong}" == "augcerlong" ) then
+      echo "#define __CACHE_AUGCERLONG__" >> ${config_h}
+   endif
+
+   if ( "${viewcone}" == "viewcone" ) then
+      echo "#define __CACHE_VIEWCONE__" >> ${config_h}
+   endif
+
+   if ( "${volumecorr}" == "volumecorr" ) then
+      echo "#define __CACHE_VOLUMECORR__" >> ${config_h}
+   endif
+
+   if ( "${volumedet}" == "volumedet" ) then
+      echo "#define __CACHE_VOLUMEDET__" >> ${config_h}
+   endif
+
+   if ( "${curved}" == "curved" ) then
+      echo "#define __CACHE_CURVED__" >> ${config_h}
+   endif
+
+   if ( "${atmosphere}" == "atmext" ) then
+      echo "#define __CACHE_ATMEXT__" >> ${config_h}
+   endif
+
+   if ( "${slant}" == "slant" ) then
+      echo "#define __CACHE_SLANT__" >> ${config_h}
+   endif
+
+   if ( "${preshower}" == "preshower" ) then
+      echo "#define __CACHE_PRESHOWER__" >> ${config_h}
+   endif
+
+   if ( "${lpm}" == "lpm" ) then
+      echo "#define __CACHE_LPM__" >> ${config_h}
+   endif
+
+   if ( "${preshower}" == "preshower" ) then
+      echo "#define __CACHE_PRESHOWER__" >> ${config_h}
+   endif
+
+   if ( "${upward}" == "upward" ) then
+      echo "#define __CACHE_UPWARD__" >> ${config_h}
+   endif
+
+   if ( "${thin}" == "thin" ) then
+      echo "#define __CACHE_THIN__" >> ${config_h}
+   endif
+   if ( "${multithin}" == "multithin" ) then
+      echo "#define __CACHE_MULTITHIN__" >> ${config_h}
+   endif
+
+   if ( "${anahist}" == "anahist" ) then
+      echo "#define __CACHE_ANAHIST__" >> ${config_h}
+   endif
+
+   if ( "${inttest}" == "inttest" ) then
+      echo "#define __CACHE_INTTEST__" >> ${config_h}
+   endif
+
+   if ( "${ehistory}" == "ehistory" ) then
+      echo "#define __CACHE_EHISTORY__" >> ${config_h}
+   endif
+
+   if ( "${muprod}" == "muprod" ) then
+      echo "#define __CACHE_MUPROD__" >> ${config_h}
+   endif
+
+   if ( "${neutrino}" == "neutrino" ) then
+      echo "#define __CACHE_NEUTRINO__" >> ${config_h}
+   endif
+
+   if ( "${compact}" == "compact" ) then
+      echo "#define __CACHE_COMPACT__" >> ${config_h}
+   endif
+
+   if ( "${nrrext}" == "nrrext" ) then
+      echo "#define __CACHE_NRREXT__" >> ${config_h}
+   endif
+
+   # Disable the unnecessary -m32 compiler option unless _really_ wanted.
+   if ( "${m32}" == "m32" ) then
+      echo "#define__CACHE_M32__ */" >> ${config_h}
+   else
+      echo "/* #undef __CACHE_M32__ */" >> ${config_h}
+   endif
+endif
+
+echo "Selected options preselected in ${config_h}."

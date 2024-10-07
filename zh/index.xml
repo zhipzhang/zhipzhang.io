@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Zach Peng&#39;s Blog</title>
-    <link>http://home.ustc.edu.cn/~zhipzhang/zh/</link>
+    <link>https://zhipzhang.github.io/zh/</link>
     <description>Recent content on Zach Peng&#39;s Blog</description>
     <generator>Hugo -- 0.135.0</generator>
     <language>zh</language>
     <lastBuildDate>Sat, 05 Oct 2024 20:16:41 +0800</lastBuildDate>
-    <atom:link href="http://home.ustc.edu.cn/~zhipzhang/zh/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://zhipzhang.github.io/zh/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Corsika Introduction</title>
-      <link>http://home.ustc.edu.cn/~zhipzhang/zh/corsikainstall/</link>
+      <link>https://zhipzhang.github.io/zh/corsikainstall/</link>
       <pubDate>Sat, 05 Oct 2024 20:16:41 +0800</pubDate>
-      <guid>http://home.ustc.edu.cn/~zhipzhang/zh/corsikainstall/</guid>
+      <guid>https://zhipzhang.github.io/zh/corsikainstall/</guid>
       <description>&lt;p&gt;Corsika 是一个对大气簇射进行模拟的程序，其可以模拟各种高能粒子在大气中发展的过程。具体信息可以参考&lt;a href=&#34;https://www.iap.kit.edu/corsika&#34;&gt;Corsika官网&lt;/a&gt;并下载相应的用户手册。&lt;/p&gt;
 &lt;h1 id=&#34;corsika-安装&#34;&gt;Corsika 安装&lt;/h1&gt;
-&lt;p&gt;在这里我们利用Konrad提供的代码对Corsika进行安装，使用Konrad的脚本安装时我们不需要手动使用./coconut，只需直接运行脚本即可。在安装之前，我们首先需要预下载两个文件：&lt;a href=&#34;http://home.ustc.edu.cn/~zhipzhang/downloads/gen_config&#34;&gt;gen_config&lt;/a&gt;和&lt;a href=&#34;http://home.ustc.edu.cn/~zhipzhang/downloads/corsika_build_script&#34;&gt;corsika_build_script&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;在这里我们利用Konrad提供的代码对Corsika进行安装，使用Konrad的脚本安装时我们不需要手动使用./coconut，只需直接运行脚本即可。在安装之前，我们首先需要预下载两个文件：&lt;a href=&#34;https://zhipzhang.github.io/downloads/gen_config&#34;&gt;gen_config&lt;/a&gt;和&lt;a href=&#34;https://zhipzhang.github.io/downloads/corsika_build_script&#34;&gt;corsika_build_script&lt;/a&gt;。&lt;/p&gt;
 &lt;h2 id=&#34;安装的步骤&#34;&gt;安装的步骤&lt;/h2&gt;
-&lt;p&gt;下载&lt;a href=&#34;http://home.ustc.edu.cn/~zhipzhang/downloads/gen_config&#34;&gt;gen_config&lt;/a&gt;和&lt;a href=&#34;http://home.ustc.edu.cn/~zhipzhang/downloads/corsika_build_script&#34;&gt;corsika_build_script&lt;/a&gt;， 将gen_config文件放置于bernlohr目录下，将corsika_build_script文件放置于corsika目录下。使用&lt;code&gt;chmod +x&lt;/code&gt;对两个文件赋予执行权限。&lt;/p&gt;
+&lt;p&gt;下载&lt;a href=&#34;https://zhipzhang.github.io/downloads/gen_config&#34;&gt;gen_config&lt;/a&gt;和&lt;a href=&#34;https://zhipzhang.github.io/downloads/corsika_build_script&#34;&gt;corsika_build_script&lt;/a&gt;， 将gen_config文件放置于bernlohr目录下，将corsika_build_script文件放置于corsika目录下。使用&lt;code&gt;chmod +x&lt;/code&gt;对两个文件赋予执行权限。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;chmod +x gen_config
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;chmod +x corsika_build_script
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;接着我们就可以直接使用&lt;code&gt;./corsika_build_script&lt;/code&gt;运行安装Corsika了。在安装中我们可以指定多个选项：&lt;/p&gt;

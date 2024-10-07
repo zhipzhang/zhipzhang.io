@@ -2,64 +2,64 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://home.ustc.edu.cn/~zhipzhang/en/archives/</loc>
+    <loc>https://zhipzhang.github.io/en/archives/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
-                href="http://home.ustc.edu.cn/~zhipzhang/zh/archives/"
+                href="https://zhipzhang.github.io/zh/archives/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://home.ustc.edu.cn/~zhipzhang/en/archives/"
+                href="https://zhipzhang.github.io/en/archives/"
                 />
   </url><url>
-    <loc>http://home.ustc.edu.cn/~zhipzhang/en/categories/</loc>
+    <loc>https://zhipzhang.github.io/en/categories/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
-                href="http://home.ustc.edu.cn/~zhipzhang/zh/categories/"
+                href="https://zhipzhang.github.io/zh/categories/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://home.ustc.edu.cn/~zhipzhang/en/categories/"
+                href="https://zhipzhang.github.io/en/categories/"
                 />
   </url><url>
-    <loc>http://home.ustc.edu.cn/~zhipzhang/en/search/</loc>
+    <loc>https://zhipzhang.github.io/en/search/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
-                href="http://home.ustc.edu.cn/~zhipzhang/zh/search/"
+                href="https://zhipzhang.github.io/zh/search/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://home.ustc.edu.cn/~zhipzhang/en/search/"
+                href="https://zhipzhang.github.io/en/search/"
                 />
   </url><url>
-    <loc>http://home.ustc.edu.cn/~zhipzhang/en/tags/</loc>
+    <loc>https://zhipzhang.github.io/en/tags/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
-                href="http://home.ustc.edu.cn/~zhipzhang/zh/tags/"
+                href="https://zhipzhang.github.io/zh/tags/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://home.ustc.edu.cn/~zhipzhang/en/tags/"
+                href="https://zhipzhang.github.io/en/tags/"
                 />
   </url><url>
-    <loc>http://home.ustc.edu.cn/~zhipzhang/en/</loc>
+    <loc>https://zhipzhang.github.io/en/</loc>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
-                href="http://home.ustc.edu.cn/~zhipzhang/zh/"
+                href="https://zhipzhang.github.io/zh/"
                 />
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
-                href="http://home.ustc.edu.cn/~zhipzhang/en/"
+                href="https://zhipzhang.github.io/en/"
                 />
   </url>
 </urlset>

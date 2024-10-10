@@ -1,0 +1,623 @@
+<!doctype html><html lang=zh dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Corsika输入卡介绍 | Zach Peng's Blog</title>
+<meta name=keywords content="LACT,Corsika"><meta name=description content="典型的 Corsika 输入卡介绍
+以下是一个典型的 Corsika 输入卡的参数说明：
+
+  
+      
+          参数
+          值
+          说明
+      
+  
+  
+      
+          RUNNR
+          1
+          运行编号
+      
+      
+          EVTNR
+          1
+          事件起始编号
+      
+      
+          NSHOW
+          1000
+          模拟事件数量
+      
+      
+          PRMPAR
+          1
+          初始粒子类型（1 表示伽马光子）
+      
+      
+          ESLOPE
+          -1.0
+          能谱指数
+      
+      
+          ERANGE
+          1 100
+          能量范围（单位：GeV）
+      
+      
+          THETAP
+          0.0 0.0
+          天顶角范围（单位：度）
+      
+      
+          PHIP
+          0. 0.
+          方位角范围（单位：度）
+      
+      
+          VIEWCONE
+          0. 0.
+          视场角范围（单位：度）
+      
+      
+          OBSLEV
+          3800.E2
+          观测高度（单位：厘米）
+      
+      
+          ATMOSPHERE
+          1 F
+          大气模型（1 表示热带模型，F 表示不考虑大气折射）
+      
+      
+          MAGNET
+          0.001 0.001
+          地磁场（单位：高斯）
+      
+      
+          ARRANG
+          0.
+          望远镜阵列的旋转角度
+      
+      
+          CERSIZ
+          1.
+          切伦科夫光子束中光子的数量
+      
+      
+          CERFIL
+          0
+          是否输出切伦科夫光子文件（0 表示不输出）
+      
+      
+          CWAVLG
+          260. 1000.
+          切伦科夫光波长范围（单位：纳米）
+      
+      
+          TELESCOPE
+          X. Y. Z. R. (多行)
+          望远镜位置（单位：厘米）
+      
+      
+          CSCAT
+          10 800e2 0.
+          簇射重用参数
+      
+      
+          FIXHEI
+          0. 0
+          是否固定第一次相互作用高度
+      
+      
+          FIXCHI
+          0.
+          是否固定第一次相互作用深度
+      
+      
+          ELMFLG
+          T T
+          是否开启电磁成分和多重散射
+      
+      
+          RADNKG
+          200.E2
+          NKG 公式半径（单位：厘米）
+      
+      
+          HADFLG
+          0 0 0 0 0 2
+          强子相互作用标志
+      
+      
+          ECUTS
+          0.3 0.05 0.005 0.005
+          能量阈值（单位：GeV）
+      
+      
+          MUADDI
+          T
+          是否计算缪子附加信息
+      
+      
+          MUMULT
+          T
+          是否开启缪子多重散射
+      
+      
+          LONGI
+          T 20. F F
+          纵向发展输出设置
+      
+      
+          MAXPRT
+          0
+          是否输出单个粒子信息（0 表示不输出）
+      
+      
+          ECTMAP
+          1.E2
+          电子-光子能量映射阈值（单位：GeV）
+      
+      
+          TSTART
+          T
+          是否输出起始时间
+      
+      
+          DATBAS
+          yes
+          是否使用数据库
+      
+      
+          DEBUG
+          F 6 F 1000000
+          调试设置
+      
+      
+          TELFIL
+          iact.zst
+          输出文件名
+      
+      
+          DIRECT
+          ./
+          输出目录
+      
+      
+          PAROUT
+          F F
+          是否输出粒子数据
+      
+      
+          IACT
+          多行
+          IACT 特定设置
+      
+      
+          SEED
+          多行
+          随机数种子
+      
+  
+
+更详细的参数说明可以参考 Corsika 官方文档 和 sim_telarray 手册。"><meta name=author content><link rel=canonical href=https://zhipzhang.github.io/zh/corsikainputcard/><link crossorigin=anonymous href=/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as=style><link rel=icon href=https://zhipzhang.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://zhipzhang.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://zhipzhang.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://zhipzhang.github.io/apple-touch-icon.png><link rel=mask-icon href=https://zhipzhang.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://zhipzhang.github.io/zh/corsikainputcard/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:title" content="Corsika输入卡介绍"><meta property="og:description" content="典型的 Corsika 输入卡介绍
+以下是一个典型的 Corsika 输入卡的参数说明：
+
+  
+      
+          参数
+          值
+          说明
+      
+  
+  
+      
+          RUNNR
+          1
+          运行编号
+      
+      
+          EVTNR
+          1
+          事件起始编号
+      
+      
+          NSHOW
+          1000
+          模拟事件数量
+      
+      
+          PRMPAR
+          1
+          初始粒子类型（1 表示伽马光子）
+      
+      
+          ESLOPE
+          -1.0
+          能谱指数
+      
+      
+          ERANGE
+          1 100
+          能量范围（单位：GeV）
+      
+      
+          THETAP
+          0.0 0.0
+          天顶角范围（单位：度）
+      
+      
+          PHIP
+          0. 0.
+          方位角范围（单位：度）
+      
+      
+          VIEWCONE
+          0. 0.
+          视场角范围（单位：度）
+      
+      
+          OBSLEV
+          3800.E2
+          观测高度（单位：厘米）
+      
+      
+          ATMOSPHERE
+          1 F
+          大气模型（1 表示热带模型，F 表示不考虑大气折射）
+      
+      
+          MAGNET
+          0.001 0.001
+          地磁场（单位：高斯）
+      
+      
+          ARRANG
+          0.
+          望远镜阵列的旋转角度
+      
+      
+          CERSIZ
+          1.
+          切伦科夫光子束中光子的数量
+      
+      
+          CERFIL
+          0
+          是否输出切伦科夫光子文件（0 表示不输出）
+      
+      
+          CWAVLG
+          260. 1000.
+          切伦科夫光波长范围（单位：纳米）
+      
+      
+          TELESCOPE
+          X. Y. Z. R. (多行)
+          望远镜位置（单位：厘米）
+      
+      
+          CSCAT
+          10 800e2 0.
+          簇射重用参数
+      
+      
+          FIXHEI
+          0. 0
+          是否固定第一次相互作用高度
+      
+      
+          FIXCHI
+          0.
+          是否固定第一次相互作用深度
+      
+      
+          ELMFLG
+          T T
+          是否开启电磁成分和多重散射
+      
+      
+          RADNKG
+          200.E2
+          NKG 公式半径（单位：厘米）
+      
+      
+          HADFLG
+          0 0 0 0 0 2
+          强子相互作用标志
+      
+      
+          ECUTS
+          0.3 0.05 0.005 0.005
+          能量阈值（单位：GeV）
+      
+      
+          MUADDI
+          T
+          是否计算缪子附加信息
+      
+      
+          MUMULT
+          T
+          是否开启缪子多重散射
+      
+      
+          LONGI
+          T 20. F F
+          纵向发展输出设置
+      
+      
+          MAXPRT
+          0
+          是否输出单个粒子信息（0 表示不输出）
+      
+      
+          ECTMAP
+          1.E2
+          电子-光子能量映射阈值（单位：GeV）
+      
+      
+          TSTART
+          T
+          是否输出起始时间
+      
+      
+          DATBAS
+          yes
+          是否使用数据库
+      
+      
+          DEBUG
+          F 6 F 1000000
+          调试设置
+      
+      
+          TELFIL
+          iact.zst
+          输出文件名
+      
+      
+          DIRECT
+          ./
+          输出目录
+      
+      
+          PAROUT
+          F F
+          是否输出粒子数据
+      
+      
+          IACT
+          多行
+          IACT 特定设置
+      
+      
+          SEED
+          多行
+          随机数种子
+      
+  
+
+更详细的参数说明可以参考 Corsika 官方文档 和 sim_telarray 手册。"><meta property="og:type" content="article"><meta property="og:url" content="https://zhipzhang.github.io/zh/corsikainputcard/"><meta property="article:section" content><meta property="article:published_time" content="2024-10-10T10:48:35+08:00"><meta property="article:modified_time" content="2024-10-10T10:48:35+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Corsika输入卡介绍"><meta name=twitter:description content="典型的 Corsika 输入卡介绍
+以下是一个典型的 Corsika 输入卡的参数说明：
+
+  
+      
+          参数
+          值
+          说明
+      
+  
+  
+      
+          RUNNR
+          1
+          运行编号
+      
+      
+          EVTNR
+          1
+          事件起始编号
+      
+      
+          NSHOW
+          1000
+          模拟事件数量
+      
+      
+          PRMPAR
+          1
+          初始粒子类型（1 表示伽马光子）
+      
+      
+          ESLOPE
+          -1.0
+          能谱指数
+      
+      
+          ERANGE
+          1 100
+          能量范围（单位：GeV）
+      
+      
+          THETAP
+          0.0 0.0
+          天顶角范围（单位：度）
+      
+      
+          PHIP
+          0. 0.
+          方位角范围（单位：度）
+      
+      
+          VIEWCONE
+          0. 0.
+          视场角范围（单位：度）
+      
+      
+          OBSLEV
+          3800.E2
+          观测高度（单位：厘米）
+      
+      
+          ATMOSPHERE
+          1 F
+          大气模型（1 表示热带模型，F 表示不考虑大气折射）
+      
+      
+          MAGNET
+          0.001 0.001
+          地磁场（单位：高斯）
+      
+      
+          ARRANG
+          0.
+          望远镜阵列的旋转角度
+      
+      
+          CERSIZ
+          1.
+          切伦科夫光子束中光子的数量
+      
+      
+          CERFIL
+          0
+          是否输出切伦科夫光子文件（0 表示不输出）
+      
+      
+          CWAVLG
+          260. 1000.
+          切伦科夫光波长范围（单位：纳米）
+      
+      
+          TELESCOPE
+          X. Y. Z. R. (多行)
+          望远镜位置（单位：厘米）
+      
+      
+          CSCAT
+          10 800e2 0.
+          簇射重用参数
+      
+      
+          FIXHEI
+          0. 0
+          是否固定第一次相互作用高度
+      
+      
+          FIXCHI
+          0.
+          是否固定第一次相互作用深度
+      
+      
+          ELMFLG
+          T T
+          是否开启电磁成分和多重散射
+      
+      
+          RADNKG
+          200.E2
+          NKG 公式半径（单位：厘米）
+      
+      
+          HADFLG
+          0 0 0 0 0 2
+          强子相互作用标志
+      
+      
+          ECUTS
+          0.3 0.05 0.005 0.005
+          能量阈值（单位：GeV）
+      
+      
+          MUADDI
+          T
+          是否计算缪子附加信息
+      
+      
+          MUMULT
+          T
+          是否开启缪子多重散射
+      
+      
+          LONGI
+          T 20. F F
+          纵向发展输出设置
+      
+      
+          MAXPRT
+          0
+          是否输出单个粒子信息（0 表示不输出）
+      
+      
+          ECTMAP
+          1.E2
+          电子-光子能量映射阈值（单位：GeV）
+      
+      
+          TSTART
+          T
+          是否输出起始时间
+      
+      
+          DATBAS
+          yes
+          是否使用数据库
+      
+      
+          DEBUG
+          F 6 F 1000000
+          调试设置
+      
+      
+          TELFIL
+          iact.zst
+          输出文件名
+      
+      
+          DIRECT
+          ./
+          输出目录
+      
+      
+          PAROUT
+          F F
+          是否输出粒子数据
+      
+      
+          IACT
+          多行
+          IACT 特定设置
+      
+      
+          SEED
+          多行
+          随机数种子
+      
+  
+
+更详细的参数说明可以参考 Corsika 官方文档 和 sim_telarray 手册。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Corsika输入卡介绍","item":"https://zhipzhang.github.io/zh/corsikainputcard/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Corsika输入卡介绍","name":"Corsika输入卡介绍","description":"典型的 Corsika 输入卡介绍 以下是一个典型的 Corsika 输入卡的参数说明：\n参数 值 说明 RUNNR 1 运行编号 EVTNR 1 事件起始编号 NSHOW 1000 模拟事件数量 PRMPAR 1 初始粒子类型（1 表示伽马光子） ESLOPE -1.0 能谱指数 ERANGE 1 100 能量范围（单位：GeV） THETAP 0.0 0.0 天顶角范围（单位：度） PHIP 0. 0. 方位角范围（单位：度） VIEWCONE 0. 0. 视场角范围（单位：度） OBSLEV 3800.E2 观测高度（单位：厘米） ATMOSPHERE 1 F 大气模型（1 表示热带模型，F 表示不考虑大气折射） MAGNET 0.001 0.001 地磁场（单位：高斯） ARRANG 0. 望远镜阵列的旋转角度 CERSIZ 1. 切伦科夫光子束中光子的数量 CERFIL 0 是否输出切伦科夫光子文件（0 表示不输出） CWAVLG 260. 1000. 切伦科夫光波长范围（单位：纳米） TELESCOPE X. Y. Z. R. (多行) 望远镜位置（单位：厘米） CSCAT 10 800e2 0. 簇射重用参数 FIXHEI 0. 0 是否固定第一次相互作用高度 FIXCHI 0. 是否固定第一次相互作用深度 ELMFLG T T 是否开启电磁成分和多重散射 RADNKG 200.E2 NKG 公式半径（单位：厘米） HADFLG 0 0 0 0 0 2 强子相互作用标志 ECUTS 0.3 0.05 0.005 0.005 能量阈值（单位：GeV） MUADDI T 是否计算缪子附加信息 MUMULT T 是否开启缪子多重散射 LONGI T 20. F F 纵向发展输出设置 MAXPRT 0 是否输出单个粒子信息（0 表示不输出） ECTMAP 1.E2 电子-光子能量映射阈值（单位：GeV） TSTART T 是否输出起始时间 DATBAS yes 是否使用数据库 DEBUG F 6 F 1000000 调试设置 TELFIL iact.zst 输出文件名 DIRECT ./ 输出目录 PAROUT F F 是否输出粒子数据 IACT 多行 IACT 特定设置 SEED 多行 随机数种子 更详细的参数说明可以参考 Corsika 官方文档 和 sim_telarray 手册。\n","keywords":["LACT","Corsika"],"articleBody":"典型的 Corsika 输入卡介绍 以下是一个典型的 Corsika 输入卡的参数说明：\n参数 值 说明 RUNNR 1 运行编号 EVTNR 1 事件起始编号 NSHOW 1000 模拟事件数量 PRMPAR 1 初始粒子类型（1 表示伽马光子） ESLOPE -1.0 能谱指数 ERANGE 1 100 能量范围（单位：GeV） THETAP 0.0 0.0 天顶角范围（单位：度） PHIP 0. 0. 方位角范围（单位：度） VIEWCONE 0. 0. 视场角范围（单位：度） OBSLEV 3800.E2 观测高度（单位：厘米） ATMOSPHERE 1 F 大气模型（1 表示热带模型，F 表示不考虑大气折射） MAGNET 0.001 0.001 地磁场（单位：高斯） ARRANG 0. 望远镜阵列的旋转角度 CERSIZ 1. 切伦科夫光子束中光子的数量 CERFIL 0 是否输出切伦科夫光子文件（0 表示不输出） CWAVLG 260. 1000. 切伦科夫光波长范围（单位：纳米） TELESCOPE X. Y. Z. R. (多行) 望远镜位置（单位：厘米） CSCAT 10 800e2 0. 簇射重用参数 FIXHEI 0. 0 是否固定第一次相互作用高度 FIXCHI 0. 是否固定第一次相互作用深度 ELMFLG T T 是否开启电磁成分和多重散射 RADNKG 200.E2 NKG 公式半径（单位：厘米） HADFLG 0 0 0 0 0 2 强子相互作用标志 ECUTS 0.3 0.05 0.005 0.005 能量阈值（单位：GeV） MUADDI T 是否计算缪子附加信息 MUMULT T 是否开启缪子多重散射 LONGI T 20. F F 纵向发展输出设置 MAXPRT 0 是否输出单个粒子信息（0 表示不输出） ECTMAP 1.E2 电子-光子能量映射阈值（单位：GeV） TSTART T 是否输出起始时间 DATBAS yes 是否使用数据库 DEBUG F 6 F 1000000 调试设置 TELFIL iact.zst 输出文件名 DIRECT ./ 输出目录 PAROUT F F 是否输出粒子数据 IACT 多行 IACT 特定设置 SEED 多行 随机数种子 更详细的参数说明可以参考 Corsika 官方文档 和 sim_telarray 手册。\n特殊选项的讨论 CERSIZ CERSIZ 代表每个光子束中的光子数。通常情况下设置为 5，但如果你启用了大气吸收或量子效率模拟，建议将其设置为 1，以确保模拟的准确性。\nCSCAT CSCAT表示簇射被重用的次数，为了增加模拟数据的统计量，对于同一个簇射我们会多次使用，通常对于伽马射线，我们设置CSCAT = 10，对于宇宙线的事例，我们设置CSCAT = 20。后两个参数可以用来表示投点的范围，分别表示X方向和Y方向的投点范围。当Y方向的投点范围设置为0时，表示以圆进行投点。\nFIXHEI/FIXCHI FIXHEI 和 FIXCHI 用来控制是否固定第一次相互作用的高度和深度。默认情况下，两者都设为 0，表示不固定。如果你在研究特定高度的相互作用（如 Muon Ring），可以根据需要设置固定高度或深度。\nIACT 选项 如果使用 iactext 选项，可以通过 IACT 设置以下参数：\nIACT STORE_PARTICLES true：是否保存到达地面的粒子信息。 IACT STORE_EMITTERS true：是否保存发射切伦科夫光的粒子信息。 TELFIL：eventio格式的输出文件名，由于其特殊性，该选项可以开启各种扩展，从而实现pipe运行等。 corsika_run的使用 在lact账户下我们提供了corsika_run来直接执行corsik的模拟，其主要的配置参数如下:\nusage: corsika_run [-h] --corsika-path CORSIKA_PATH [--template TEMPLATE] --run-number RUN_NUMBER [--config-path CONFIG_PATH] [--keep-seeds] [--energy-range ENERGY_RANGE] [--particle-type PARTICLE_TYPE] [--atmosphere ATMOSPHERE] [--altitude ALTITUDE] Run CORSIKA simulation options: -h, --help show this help message and exit --corsika-path CORSIKA_PATH Path to CORSIKA executable --template TEMPLATE Path to template input file --run-number RUN_NUMBER Run number --config-path CONFIG_PATH Path to configuration directory --keep-seeds Keep seeds from template --energy-range ENERGY_RANGE Energy range for simulation --particle-type PARTICLE_TYPE Particle type for simulation --atmosphere ATMOSPHERE Atmosphere model number --altitude ALTITUDE Observation level altitude in meters 同场在使用中我们最好提供相应的template的基础文件，然后通过命令行参数进行调整。\n","wordCount":"284","inLanguage":"zh","datePublished":"2024-10-10T10:48:35+08:00","dateModified":"2024-10-10T10:48:35+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://zhipzhang.github.io/zh/corsikainputcard/"},"publisher":{"@type":"Organization","name":"Zach Peng's Blog","logo":{"@type":"ImageObject","url":"https://zhipzhang.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://zhipzhang.github.io/zh/ accesskey=h title="Zach Peng's Blog (Alt + H)">Zach Peng's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button><ul class=lang-switch><li>|</li><li><a href=https://zhipzhang.github.io/en/ title=English aria-label=English>En</a></li></ul></div></div><ul id=menu><li><a href=https://zhipzhang.github.io/zh/archives/ title=归档><span>归档</span></a></li><li><a href=https://zhipzhang.github.io/zh/search/ title=搜索><span>搜索</span></a></li><li><a href=https://zhipzhang.github.io/zh/tags/ title=标签><span>标签</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Corsika输入卡介绍</h1><div class=post-meta><span title='2024-10-10 10:48:35 +0800 CST'>十月 10, 2024</span></div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>目录</span></summary><div class=inner><ul><li><a href=#%e5%85%b8%e5%9e%8b%e7%9a%84-corsika-%e8%be%93%e5%85%a5%e5%8d%a1%e4%bb%8b%e7%bb%8d aria-label="典型的 Corsika 输入卡介绍">典型的 Corsika 输入卡介绍</a></li><li><a href=#%e7%89%b9%e6%ae%8a%e9%80%89%e9%a1%b9%e7%9a%84%e8%ae%a8%e8%ae%ba aria-label=特殊选项的讨论>特殊选项的讨论</a><ul><li><a href=#cersiz aria-label=CERSIZ>CERSIZ</a></li><li><a href=#cscat aria-label=CSCAT>CSCAT</a></li><li><a href=#fixheifixchi aria-label=FIXHEI/FIXCHI>FIXHEI/FIXCHI</a></li><li><a href=#iact-%e9%80%89%e9%a1%b9 aria-label="IACT 选项">IACT 选项</a></li></ul></li><li><a href=#corsika_run%e7%9a%84%e4%bd%bf%e7%94%a8 aria-label=corsika_run的使用>corsika_run的使用</a></li></ul></div></details></div><div class=post-content><h2 id=典型的-corsika-输入卡介绍>典型的 Corsika 输入卡介绍<a hidden class=anchor aria-hidden=true href=#典型的-corsika-输入卡介绍>#</a></h2><p>以下是一个典型的 Corsika 输入卡的参数说明：</p><table><thead><tr><th style=text-align:left>参数</th><th style=text-align:left>值</th><th style=text-align:left>说明</th></tr></thead><tbody><tr><td style=text-align:left>RUNNR</td><td style=text-align:left>1</td><td style=text-align:left>运行编号</td></tr><tr><td style=text-align:left>EVTNR</td><td style=text-align:left>1</td><td style=text-align:left>事件起始编号</td></tr><tr><td style=text-align:left>NSHOW</td><td style=text-align:left>1000</td><td style=text-align:left>模拟事件数量</td></tr><tr><td style=text-align:left>PRMPAR</td><td style=text-align:left>1</td><td style=text-align:left>初始粒子类型（1 表示伽马光子）</td></tr><tr><td style=text-align:left>ESLOPE</td><td style=text-align:left>-1.0</td><td style=text-align:left>能谱指数</td></tr><tr><td style=text-align:left>ERANGE</td><td style=text-align:left>1 100</td><td style=text-align:left>能量范围（单位：GeV）</td></tr><tr><td style=text-align:left>THETAP</td><td style=text-align:left>0.0 0.0</td><td style=text-align:left>天顶角范围（单位：度）</td></tr><tr><td style=text-align:left>PHIP</td><td style=text-align:left>0. 0.</td><td style=text-align:left>方位角范围（单位：度）</td></tr><tr><td style=text-align:left>VIEWCONE</td><td style=text-align:left>0. 0.</td><td style=text-align:left>视场角范围（单位：度）</td></tr><tr><td style=text-align:left>OBSLEV</td><td style=text-align:left>3800.E2</td><td style=text-align:left>观测高度（单位：厘米）</td></tr><tr><td style=text-align:left>ATMOSPHERE</td><td style=text-align:left>1 F</td><td style=text-align:left>大气模型（1 表示热带模型，F 表示不考虑大气折射）</td></tr><tr><td style=text-align:left>MAGNET</td><td style=text-align:left>0.001 0.001</td><td style=text-align:left>地磁场（单位：高斯）</td></tr><tr><td style=text-align:left>ARRANG</td><td style=text-align:left>0.</td><td style=text-align:left>望远镜阵列的旋转角度</td></tr><tr><td style=text-align:left>CERSIZ</td><td style=text-align:left>1.</td><td style=text-align:left>切伦科夫光子束中光子的数量</td></tr><tr><td style=text-align:left>CERFIL</td><td style=text-align:left>0</td><td style=text-align:left>是否输出切伦科夫光子文件（0 表示不输出）</td></tr><tr><td style=text-align:left>CWAVLG</td><td style=text-align:left>260. 1000.</td><td style=text-align:left>切伦科夫光波长范围（单位：纳米）</td></tr><tr><td style=text-align:left>TELESCOPE</td><td style=text-align:left>X. Y. Z. R. (多行)</td><td style=text-align:left>望远镜位置（单位：厘米）</td></tr><tr><td style=text-align:left>CSCAT</td><td style=text-align:left>10 800e2 0.</td><td style=text-align:left>簇射重用参数</td></tr><tr><td style=text-align:left>FIXHEI</td><td style=text-align:left>0. 0</td><td style=text-align:left>是否固定第一次相互作用高度</td></tr><tr><td style=text-align:left>FIXCHI</td><td style=text-align:left>0.</td><td style=text-align:left>是否固定第一次相互作用深度</td></tr><tr><td style=text-align:left>ELMFLG</td><td style=text-align:left>T T</td><td style=text-align:left>是否开启电磁成分和多重散射</td></tr><tr><td style=text-align:left>RADNKG</td><td style=text-align:left>200.E2</td><td style=text-align:left>NKG 公式半径（单位：厘米）</td></tr><tr><td style=text-align:left>HADFLG</td><td style=text-align:left>0 0 0 0 0 2</td><td style=text-align:left>强子相互作用标志</td></tr><tr><td style=text-align:left>ECUTS</td><td style=text-align:left>0.3 0.05 0.005 0.005</td><td style=text-align:left>能量阈值（单位：GeV）</td></tr><tr><td style=text-align:left>MUADDI</td><td style=text-align:left>T</td><td style=text-align:left>是否计算缪子附加信息</td></tr><tr><td style=text-align:left>MUMULT</td><td style=text-align:left>T</td><td style=text-align:left>是否开启缪子多重散射</td></tr><tr><td style=text-align:left>LONGI</td><td style=text-align:left>T 20. F F</td><td style=text-align:left>纵向发展输出设置</td></tr><tr><td style=text-align:left>MAXPRT</td><td style=text-align:left>0</td><td style=text-align:left>是否输出单个粒子信息（0 表示不输出）</td></tr><tr><td style=text-align:left>ECTMAP</td><td style=text-align:left>1.E2</td><td style=text-align:left>电子-光子能量映射阈值（单位：GeV）</td></tr><tr><td style=text-align:left>TSTART</td><td style=text-align:left>T</td><td style=text-align:left>是否输出起始时间</td></tr><tr><td style=text-align:left>DATBAS</td><td style=text-align:left>yes</td><td style=text-align:left>是否使用数据库</td></tr><tr><td style=text-align:left>DEBUG</td><td style=text-align:left>F 6 F 1000000</td><td style=text-align:left>调试设置</td></tr><tr><td style=text-align:left>TELFIL</td><td style=text-align:left>iact.zst</td><td style=text-align:left>输出文件名</td></tr><tr><td style=text-align:left>DIRECT</td><td style=text-align:left>./</td><td style=text-align:left>输出目录</td></tr><tr><td style=text-align:left>PAROUT</td><td style=text-align:left>F F</td><td style=text-align:left>是否输出粒子数据</td></tr><tr><td style=text-align:left>IACT</td><td style=text-align:left>多行</td><td style=text-align:left>IACT 特定设置</td></tr><tr><td style=text-align:left>SEED</td><td style=text-align:left>多行</td><td style=text-align:left>随机数种子</td></tr></tbody></table><p>更详细的参数说明可以参考 <a href=https://www.ikp.kit.edu/corsika/corsika_manual.pdf>Corsika 官方文档</a> 和 <code>sim_telarray</code> 手册。</p><hr><h2 id=特殊选项的讨论>特殊选项的讨论<a hidden class=anchor aria-hidden=true href=#特殊选项的讨论>#</a></h2><h3 id=cersiz>CERSIZ<a hidden class=anchor aria-hidden=true href=#cersiz>#</a></h3><p><code>CERSIZ</code> 代表每个光子束中的光子数。通常情况下设置为 5，但如果你启用了大气吸收或量子效率模拟，建议将其设置为 1，以确保模拟的准确性。</p><h3 id=cscat>CSCAT<a hidden class=anchor aria-hidden=true href=#cscat>#</a></h3><p><code>CSCAT</code>表示簇射被重用的次数，为了增加模拟数据的统计量，对于同一个簇射我们会多次使用，通常对于伽马射线，我们设置<code>CSCAT = 10</code>，对于宇宙线的事例，我们设置<code>CSCAT = 20</code>。后两个参数可以用来表示投点的范围，分别表示X方向和Y方向的投点范围。当Y方向的投点范围设置为0时，表示以圆进行投点。</p><h3 id=fixheifixchi>FIXHEI/FIXCHI<a hidden class=anchor aria-hidden=true href=#fixheifixchi>#</a></h3><p><code>FIXHEI</code> 和 <code>FIXCHI</code> 用来控制是否固定第一次相互作用的高度和深度。默认情况下，两者都设为 0，表示不固定。如果你在研究特定高度的相互作用（如 <code>Muon Ring</code>），可以根据需要设置固定高度或深度。</p><h3 id=iact-选项>IACT 选项<a hidden class=anchor aria-hidden=true href=#iact-选项>#</a></h3><p>如果使用 <code>iactext</code> 选项，可以通过 <code>IACT</code> 设置以下参数：</p><ul><li><code>IACT STORE_PARTICLES true</code>：是否保存到达地面的粒子信息。</li><li><code>IACT STORE_EMITTERS true</code>：是否保存发射切伦科夫光的粒子信息。</li><li><code>TELFIL</code>：<code>eventio</code>格式的输出文件名，由于其特殊性，该选项可以开启各种扩展，从而实现<code>pipe</code>运行等。</li></ul><h2 id=corsika_run的使用><code>corsika_run</code>的使用<a hidden class=anchor aria-hidden=true href=#corsika_run的使用>#</a></h2><p>在lact账户下我们提供了<code>corsika_run</code>来直接执行corsik的模拟，其主要的配置参数如下:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>usage: corsika_run <span style=color:#f92672>[</span>-h<span style=color:#f92672>]</span> --corsika-path CORSIKA_PATH <span style=color:#f92672>[</span>--template TEMPLATE<span style=color:#f92672>]</span> --run-number RUN_NUMBER
+</span></span><span style=display:flex><span>                   <span style=color:#f92672>[</span>--config-path CONFIG_PATH<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>--keep-seeds<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>--energy-range ENERGY_RANGE<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>                   <span style=color:#f92672>[</span>--particle-type PARTICLE_TYPE<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>--atmosphere ATMOSPHERE<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>--altitude ALTITUDE<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Run CORSIKA simulation
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>options:
+</span></span><span style=display:flex><span>  -h, --help            show this help message and exit
+</span></span><span style=display:flex><span>  --corsika-path CORSIKA_PATH
+</span></span><span style=display:flex><span>                        Path to CORSIKA executable
+</span></span><span style=display:flex><span>  --template TEMPLATE   Path to template input file
+</span></span><span style=display:flex><span>  --run-number RUN_NUMBER
+</span></span><span style=display:flex><span>                        Run number
+</span></span><span style=display:flex><span>  --config-path CONFIG_PATH
+</span></span><span style=display:flex><span>                        Path to configuration directory
+</span></span><span style=display:flex><span>  --keep-seeds          Keep seeds from template
+</span></span><span style=display:flex><span>  --energy-range ENERGY_RANGE
+</span></span><span style=display:flex><span>                        Energy range <span style=color:#66d9ef>for</span> simulation
+</span></span><span style=display:flex><span>  --particle-type PARTICLE_TYPE
+</span></span><span style=display:flex><span>                        Particle type <span style=color:#66d9ef>for</span> simulation
+</span></span><span style=display:flex><span>  --atmosphere ATMOSPHERE
+</span></span><span style=display:flex><span>                        Atmosphere model number
+</span></span><span style=display:flex><span>  --altitude ALTITUDE   Observation level altitude in meters
+</span></span></code></pre></div><p>同场在使用中我们最好提供相应的<code>template</code>的基础文件，然后通过命令行参数进行调整。</p></div><footer class=post-footer><ul class=post-tags><li><a href=https://zhipzhang.github.io/zh/tags/lact/>LACT</a></li><li><a href=https://zhipzhang.github.io/zh/tags/corsika/>Corsika</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2024 <a href=https://zhipzhang.github.io/zh/>Zach Peng's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

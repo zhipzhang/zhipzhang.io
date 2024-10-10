@@ -6,8 +6,213 @@
     <description>Recent content in LACT on Zach Peng&#39;s Blog</description>
     <generator>Hugo -- 0.135.0</generator>
     <language>zh</language>
-    <lastBuildDate>Sat, 05 Oct 2024 20:16:41 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 10 Oct 2024 10:48:35 +0800</lastBuildDate>
     <atom:link href="https://zhipzhang.github.io/zh/tags/lact/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Corsika输入卡介绍</title>
+      <link>https://zhipzhang.github.io/zh/corsikainputcard/</link>
+      <pubDate>Thu, 10 Oct 2024 10:48:35 +0800</pubDate>
+      <guid>https://zhipzhang.github.io/zh/corsikainputcard/</guid>
+      <description>&lt;h2 id=&#34;典型的-corsika-输入卡介绍&#34;&gt;典型的 Corsika 输入卡介绍&lt;/h2&gt;
+&lt;p&gt;以下是一个典型的 Corsika 输入卡的参数说明：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;参数&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;值&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;说明&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;RUNNR&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;运行编号&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;EVTNR&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;事件起始编号&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;NSHOW&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1000&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;模拟事件数量&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;PRMPAR&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;初始粒子类型（1 表示伽马光子）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ESLOPE&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-1.0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;能谱指数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ERANGE&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1 100&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;能量范围（单位：GeV）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;THETAP&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0.0 0.0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;天顶角范围（单位：度）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;PHIP&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0. 0.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;方位角范围（单位：度）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;VIEWCONE&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0. 0.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;视场角范围（单位：度）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;OBSLEV&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;3800.E2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;观测高度（单位：厘米）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ATMOSPHERE&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1 F&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;大气模型（1 表示热带模型，F 表示不考虑大气折射）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;MAGNET&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0.001 0.001&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;地磁场（单位：高斯）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ARRANG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;望远镜阵列的旋转角度&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CERSIZ&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;切伦科夫光子束中光子的数量&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CERFIL&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否输出切伦科夫光子文件（0 表示不输出）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CWAVLG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;260. 1000.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;切伦科夫光波长范围（单位：纳米）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;TELESCOPE&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;X. Y. Z. R. (多行)&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;望远镜位置（单位：厘米）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CSCAT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;10 800e2 0.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;簇射重用参数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;FIXHEI&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0. 0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否固定第一次相互作用高度&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;FIXCHI&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否固定第一次相互作用深度&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ELMFLG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;T T&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否开启电磁成分和多重散射&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;RADNKG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;200.E2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;NKG 公式半径（单位：厘米）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;HADFLG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0 0 0 0 0 2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;强子相互作用标志&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ECUTS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0.3 0.05 0.005 0.005&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;能量阈值（单位：GeV）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;MUADDI&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;T&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否计算缪子附加信息&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;MUMULT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;T&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否开启缪子多重散射&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;LONGI&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;T 20. F F&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;纵向发展输出设置&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;MAXPRT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否输出单个粒子信息（0 表示不输出）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ECTMAP&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1.E2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;电子-光子能量映射阈值（单位：GeV）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;TSTART&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;T&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否输出起始时间&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;DATBAS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;yes&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否使用数据库&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;DEBUG&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;F 6 F 1000000&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;调试设置&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;TELFIL&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;iact.zst&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;输出文件名&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;DIRECT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;./&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;输出目录&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;PAROUT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;F F&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;是否输出粒子数据&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;IACT&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;多行&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;IACT 特定设置&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;SEED&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;多行&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;随机数种子&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;更详细的参数说明可以参考 &lt;a href=&#34;https://www.ikp.kit.edu/corsika/corsika_manual.pdf&#34;&gt;Corsika 官方文档&lt;/a&gt; 和 &lt;code&gt;sim_telarray&lt;/code&gt; 手册。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Corsika Introduction</title>
       <link>https://zhipzhang.github.io/zh/corsikainstall/</link>
@@ -40,9 +245,9 @@
 &lt;/ol&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./corsika_build_script iact atmext viewcone qgsII urqmd
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;corsika-使用&#34;&gt;Corsika 使用&lt;/h1&gt;
-&lt;p&gt;安装完成之后，我们需要就可以使用coriksa进行相应的模拟了。在corsika的run目录下会包含对应的可执行文件，例如:corsika77410Linux_QGSII_urqmd。将输入卡作为该程序的标准输入，就可以进行模拟了。在pylast中，我们使用&lt;code&gt;corsika_run&lt;/code&gt;程序可以直接建立相应的工作目录开始相应的的模拟。&lt;/p&gt;
+&lt;p&gt;安装完成之后，我们需要就可以使用coriksa进行相应的模拟了。在corsika的run目录下会包含对应的可执行文件，例如:&lt;code&gt;corsika77410Linux_QGSII_urqmd&lt;/code&gt;。将输入卡作为该程序的标准输入，就可以进行模拟了。在pylast中，我们使用&lt;code&gt;corsika_run&lt;/code&gt;程序可以直接建立相应的工作目录开始相应的的模拟。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;corsika_run --run-number &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --corsika-path ~/Software/corsika-77410/run/corsika77410Linux_QGSII_urqmd --atmosphere &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;atmosphere&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --altitude &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;altitude&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --template &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;current_dir&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/template.input
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在上述代码中，我们使用&lt;code&gt;--run-number&lt;/code&gt;指定当前运行的run number，使用&lt;code&gt;--corsika-path&lt;/code&gt;指定corsika程序的路径，使用&lt;code&gt;--atmosphere&lt;/code&gt;指定大气模型，使用&lt;code&gt;--altitude&lt;/code&gt;指定海拔高度，使用&lt;code&gt;--template&lt;/code&gt;指定模版输入卡的路径。&lt;/p&gt;</description>
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在上述代码中，我们使用&lt;code&gt;--run-number&lt;/code&gt;指定当前运行的run number，使用&lt;code&gt;--corsika-path&lt;/code&gt;指定corsika程序的路径，使用&lt;code&gt;--atmosphere&lt;/code&gt;指定大气模型，使用&lt;code&gt;--altitude&lt;/code&gt;指定海拔高度，使用&lt;code&gt;--template&lt;/code&gt;指定模版输入卡的路径。上述命令会在当前目录下建立一个工作目录：&lt;code&gt;run000001&lt;/code&gt;，并自动运行corsika程序,&lt;code&gt;corsika.input&lt;/code&gt;为对应的输入卡，&lt;code&gt;corsika.output&lt;/code&gt;为对应的输出日志。输入卡的配置可以参照&lt;a href=&#34;https://zhipzhang.github.io/zh/CorsikaInputCard&#34;&gt;输入卡配置&lt;/a&gt;。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

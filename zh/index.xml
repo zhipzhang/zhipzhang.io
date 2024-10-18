@@ -6,8 +6,129 @@
     <description>Recent content on Zach Peng&#39;s Blog</description>
     <generator>Hugo -- 0.135.0</generator>
     <language>zh</language>
-    <lastBuildDate>Thu, 10 Oct 2024 10:48:35 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 16 Oct 2024 20:16:41 +0800</lastBuildDate>
     <atom:link href="https://zhipzhang.github.io/zh/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ctapipe data analysis for LACT</title>
+      <link>https://zhipzhang.github.io/zh/ctapipe_example/</link>
+      <pubDate>Wed, 16 Oct 2024 20:16:41 +0800</pubDate>
+      <guid>https://zhipzhang.github.io/zh/ctapipe_example/</guid>
+      <description>&lt;p&gt;&lt;code&gt;ctapipe&lt;/code&gt;是CTA中对&lt;code&gt;sim_telarray&lt;/code&gt;生成的文件进行分析的软件包，其中包括对波形积分、图像清理、重建等过程。之前开发的&lt;code&gt;LAST&lt;/code&gt;实际很大一部分基于&lt;code&gt;ctapipe&lt;/code&gt;进行开发，在未来我们也会以&lt;code&gt;ctapipe&lt;/code&gt;为样本开发下一版本的&lt;code&gt;LAST&lt;/code&gt;程序。因此在这里我们以&lt;code&gt;ctapipe&lt;/code&gt;为基础，对重建的文件进行相应的分析。&lt;/p&gt;
+&lt;h2 id=&#34;模拟数据的产生&#34;&gt;模拟数据的产生&lt;/h2&gt;
+&lt;p&gt;首先我们使用&lt;code&gt;corsika_run&lt;/code&gt;产生相应的corsika的数据，并使用&lt;code&gt;sim_telarray&lt;/code&gt;进行相应的模拟。运行的脚本如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;corsika_run --run-number &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --corsika-path ~/Software/corsika-77410/run/corsika77410Linux_QGSII_urqmd --atmosphere &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --altitude &lt;span style=&#34;color:#ae81ff&#34;&gt;4400&lt;/span&gt; --template ./corsika.input
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# iact.zst will show in run000001&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sim_telarray -i run000001/iact.zst -o simtel.zst
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;值得注意的是，为了全面的使用&lt;code&gt;ctapipe&lt;/code&gt;，我们使用了完整的模拟参数，即对电子学波形也进行了相应的模拟，目前是基本上完全基于&lt;code&gt;HESS&lt;/code&gt;的电子学参数。&lt;/p&gt;
+&lt;h2 id=&#34;原始数据的分析&#34;&gt;原始数据的分析&lt;/h2&gt;
+&lt;p&gt;在下面我们展示了使用&lt;code&gt;ctapipe&lt;/code&gt;读取&lt;code&gt;simtel.zst&lt;/code&gt;文件，并进行相应的波形积分、参数化等过程。
+&lt;p&gt;
+  &lt;a href=&#34;https://zhipzhang.github.io//jupyter/ctapipe-example.html&#34;
+    &gt;Click here to view this notebook in full screen&lt;/a
+  &gt;
+&lt;/p&gt;
+&lt;iframe
+  src=&#34;https://zhipzhang.github.io//jupyter/ctapipe-example.html&#34;
+  style=&#34;height:5000px;width:100%;border:none;overflow:hidden;&#34;
+  scrolling=&#34;no&#34;
+&gt;&lt;/iframe&gt;
+&lt;/p&gt;
+&lt;h2 id=&#34;数据的重建过程&#34;&gt;数据的重建过程&lt;/h2&gt;
+&lt;p&gt;除了可以对原始数据进行分析，我们还可以很方便的对数据进行相应的重建。下面我们展示对&lt;code&gt;simtel.zst&lt;/code&gt;文件进行重建的过程。&lt;/p&gt;
+&lt;p&gt;
+  &lt;a href=&#34;https://zhipzhang.github.io//jupyter/ctapipe-reco.html&#34;
+    &gt;Click here to view this notebook in full screen&lt;/a
+  &gt;
+&lt;/p&gt;
+&lt;iframe
+  src=&#34;https://zhipzhang.github.io//jupyter/ctapipe-reco.html&#34;
+  style=&#34;height:1800px;width:100%;border:none;overflow:hidden;&#34;
+  scrolling=&#34;no&#34;
+&gt;&lt;/iframe&gt;</description>
+    </item>
+    <item>
+      <title>Sim_telarray LACT_PROD0 配置解读</title>
+      <link>https://zhipzhang.github.io/zh/simtelarrayconfiguration/</link>
+      <pubDate>Mon, 14 Oct 2024 15:58:58 +0800</pubDate>
+      <guid>https://zhipzhang.github.io/zh/simtelarrayconfiguration/</guid>
+      <description>&lt;p&gt;在&lt;code&gt;sim_telarray&lt;/code&gt;中存在大量可以进行配置的文件。在这里我们对&lt;code&gt;LACT_PROD0&lt;/code&gt;的配置进行解读，值得注意的是，考虑到现阶段&lt;code&gt;LACT&lt;/code&gt;望远镜的配置还没有完全确定，在配置文件中我们很大程度参考了&lt;code&gt;SST-1M&lt;/code&gt;的配置。&lt;/p&gt;
+&lt;h2 id=&#34;配置概括&#34;&gt;配置概括&lt;/h2&gt;
+&lt;p&gt;所有配置的入口文件为&lt;code&gt;cfg/lact/lact.cfg&lt;/code&gt;,在这里我们使用&lt;code&gt;include&lt;/code&gt;语句将其他配置文件引入。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include &amp;lt;LACT-camera.cfg&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;...
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;为了方便配置我们将配置文件分为了以下几个模块：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;LACT-site.cfg&lt;/code&gt;: 站点的配置信息，包括海拔、大气模型等&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LACT-common.cfg&lt;/code&gt;: 包括模拟中的一些基本信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LACT-optics.cfg&lt;/code&gt;: 包括光学参数的配置信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LACT-camera.cfg&lt;/code&gt;: 包括相机参数的配置信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LACT-sipm.cfg&lt;/code&gt;: 包括SipM参数配置信息&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    <item>
+      <title>Sim_telarray 工具包改装计划</title>
+      <link>https://zhipzhang.github.io/zh/simtelarrayadaption1/</link>
+      <pubDate>Mon, 14 Oct 2024 14:16:25 +0800</pubDate>
+      <guid>https://zhipzhang.github.io/zh/simtelarrayadaption1/</guid>
+      <description>&lt;p&gt;考虑到在LACT模拟中需要大量依赖于&lt;code&gt;hessioxxx&lt;/code&gt;以及&lt;code&gt;sim_telarray&lt;/code&gt;工具包，而这两个工具包编译的过程比较繁琐，所以这里打算将这两个工具包进行改装，使其能够适应LACT的模拟需求。&lt;/p&gt;
+&lt;h2 id=&#34;hessioxxx改装思路&#34;&gt;hessioxxx改装思路&lt;/h2&gt;
+&lt;p&gt;在&lt;code&gt;hessioxxx&lt;/code&gt;中，其存在大量为&lt;code&gt;CTA&lt;/code&gt;以及&lt;code&gt;HESS&lt;/code&gt;等项目定制的参数配置，因此在&lt;code&gt;LACT&lt;/code&gt;进行使用的过程中及其不方便。考虑到最小化我们的修改情况，我们使用&lt;code&gt;LACT_PROD&lt;/code&gt;参数来进行一键的配置。配置后我们可以使用下面的代码直接进行安装：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make EXTRA_OPTIONS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&amp;#39;&lt;/span&gt;-DLACT_PROD0&lt;span style=&#34;color:#e6db74&#34;&gt;`&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以下是LACT_PROD0参数配置的说明表格：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;参数&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;值&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;说明&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_TEL&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;32&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;最大望远镜数量&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_PIX&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;3000&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;每个望远镜的最大像素数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_GAINS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;每个像素的最大增益通道数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_PIXSECTORS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;19&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;每个像素最多可以在多少个扇区之中&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_SECTORS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_PIX * 2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;最大扇区数，为最大像素数的两倍&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;H_MAX_SLICES&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;128&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;最大采样的时间(ns)&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;修改的第二个部分则为目前的&lt;code&gt;eventio&lt;/code&gt;格式中并不支持原生的&lt;code&gt;xrootd&lt;/code&gt;读取和写入，目前我们使用&lt;code&gt;xrdcf&lt;/code&gt;来进行包装来暂时解决这个问题。&lt;/p&gt;
+&lt;h2 id=&#34;sim_telarray改装思路&#34;&gt;sim_telarray改装思路&lt;/h2&gt;
+&lt;p&gt;在&lt;code&gt;sim_telarray&lt;/code&gt;中情况也是类似，在&lt;code&gt;Makefile&lt;/code&gt;中我们进行了优化，使其和&lt;code&gt;hessioxxx&lt;/code&gt;类似能够一键配置。除此之外，为了与&lt;code&gt;LACT&lt;/code&gt;相互搭配，下面的变化也被引入其中：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;默认的配置路径添加了cfg/lact&lt;/li&gt;
+&lt;li&gt;默认的配置文件改为了cfg/lact/lact.cfg&lt;/li&gt;
+&lt;li&gt;新增了lact_defaults.h文件，用于存放LACT的默认配置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在&lt;code&gt;sim_telarray&lt;/code&gt;中，我们添加了选项&lt;code&gt;--rmt&lt;/code&gt;，当读取&lt;code&gt;EOS&lt;/code&gt;文件的时候，可以使用该选项。&lt;/p&gt;
+&lt;p&gt;除此之外，为了更好细致的使用&lt;code&gt;sim_telarray&lt;/code&gt;，我们对配置文件进行了相应的升级。目前的配置极大程度上依赖于&lt;code&gt;HESS&lt;/code&gt;的电子学以及相应的光学参数。但这也是我们走向完整模拟的必经之路。
+关于sim_telarray的详细配置，可以参考&lt;a href=&#34;https://zhipzhang.github.io/zh/SimTelarrayConfiguration&#34;&gt;sim_telarray配置-LACT_PROD0&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Corsika输入卡介绍</title>
       <link>https://zhipzhang.github.io/zh/corsikainputcard/</link>

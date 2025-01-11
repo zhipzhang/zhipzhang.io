@@ -1,0 +1,185 @@
+<!doctype html><html lang=zh dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>探究Bash | Zach Peng's Blog</title>
+<meta name=keywords content="Linux"><meta name=description content='A simple Bash Implementation
+相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。
+什么？你不知道什么是 Bash？
+没关系，你一定见过下面这样的命令行界面：
+
+
+其实，这个以 $ 开头、等待你输入命令的界面，就是 Bash。
+在 Bash 中，我们可以通过多种方式运行程序，例如：
+
+
+直接运行程序：如 ls -l
+
+
+使用管道 (pipe)：将两个程序的输入输出连接在一起，比如 cat hello.txt | grep "hello"
+
+
+使用分号 (;)：运行多个命令，例如 mkdir hello; echo "hello" > hello
+
+
+使用 &：将任务放到后台运行
+
+
+这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 sh.c 源码为例，简单探索一个 Shell 的核心功能。
+回顾Shell的行为
+在深入代码之前，我们先来回顾一下 Shell 的常见行为：
+​	1. 直接输入命令：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。
+​	2. 运行耗时命令：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。
+​	3. 后台运行命令：使用 &，如 sleep 10 &，Bash 会立即返回提示符，不会阻塞。
+基于以上行为，一个简单的 Bash 实现可能类似如下代码'><meta name=author content="Zach Peng"><link rel=canonical href=https://zhipzhang.github.io/zh/intro_bash/><link crossorigin=anonymous href=/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as=style><link rel=icon href=https://zhipzhang.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://zhipzhang.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://zhipzhang.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://zhipzhang.github.io/apple-touch-icon.png><link rel=mask-icon href=https://zhipzhang.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://zhipzhang.github.io/zh/intro_bash/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:title" content="探究Bash"><meta property="og:description" content='A simple Bash Implementation
+相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。
+什么？你不知道什么是 Bash？
+没关系，你一定见过下面这样的命令行界面：
+
+
+其实，这个以 $ 开头、等待你输入命令的界面，就是 Bash。
+在 Bash 中，我们可以通过多种方式运行程序，例如：
+
+
+直接运行程序：如 ls -l
+
+
+使用管道 (pipe)：将两个程序的输入输出连接在一起，比如 cat hello.txt | grep "hello"
+
+
+使用分号 (;)：运行多个命令，例如 mkdir hello; echo "hello" > hello
+
+
+使用 &：将任务放到后台运行
+
+
+这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 sh.c 源码为例，简单探索一个 Shell 的核心功能。
+回顾Shell的行为
+在深入代码之前，我们先来回顾一下 Shell 的常见行为：
+​	1. 直接输入命令：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。
+​	2. 运行耗时命令：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。
+​	3. 后台运行命令：使用 &，如 sleep 10 &，Bash 会立即返回提示符，不会阻塞。
+基于以上行为，一个简单的 Bash 实现可能类似如下代码'><meta property="og:type" content="article"><meta property="og:url" content="https://zhipzhang.github.io/zh/intro_bash/"><meta property="article:section" content><meta property="article:published_time" content="2024-12-18T13:16:41+08:00"><meta property="article:modified_time" content="2024-12-18T13:16:41+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="探究Bash"><meta name=twitter:description content='A simple Bash Implementation
+相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。
+什么？你不知道什么是 Bash？
+没关系，你一定见过下面这样的命令行界面：
+
+
+其实，这个以 $ 开头、等待你输入命令的界面，就是 Bash。
+在 Bash 中，我们可以通过多种方式运行程序，例如：
+
+
+直接运行程序：如 ls -l
+
+
+使用管道 (pipe)：将两个程序的输入输出连接在一起，比如 cat hello.txt | grep "hello"
+
+
+使用分号 (;)：运行多个命令，例如 mkdir hello; echo "hello" > hello
+
+
+使用 &：将任务放到后台运行
+
+
+这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 sh.c 源码为例，简单探索一个 Shell 的核心功能。
+回顾Shell的行为
+在深入代码之前，我们先来回顾一下 Shell 的常见行为：
+​	1. 直接输入命令：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。
+​	2. 运行耗时命令：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。
+​	3. 后台运行命令：使用 &，如 sleep 10 &，Bash 会立即返回提示符，不会阻塞。
+基于以上行为，一个简单的 Bash 实现可能类似如下代码'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"探究Bash","item":"https://zhipzhang.github.io/zh/intro_bash/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"探究Bash","name":"探究Bash","description":"A simple Bash Implementation 相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。\n什么？你不知道什么是 Bash？\n没关系，你一定见过下面这样的命令行界面：\n其实，这个以 $ 开头、等待你输入命令的界面，就是 Bash。\n在 Bash 中，我们可以通过多种方式运行程序，例如：\n直接运行程序：如 ls -l\n使用管道 (pipe)：将两个程序的输入输出连接在一起，比如 cat hello.txt | grep \u0026quot;hello\u0026quot;\n使用分号 (;)：运行多个命令，例如 mkdir hello; echo \u0026quot;hello\u0026quot; \u0026gt; hello\n使用 \u0026amp;：将任务放到后台运行\n这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 sh.c 源码为例，简单探索一个 Shell 的核心功能。\n回顾Shell的行为 在深入代码之前，我们先来回顾一下 Shell 的常见行为：\n​\t1. 直接输入命令：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。\n​\t2. 运行耗时命令：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。\n​\t3. 后台运行命令：使用 \u0026amp;，如 sleep 10 \u0026amp;，Bash 会立即返回提示符，不会阻塞。\n基于以上行为，一个简单的 Bash 实现可能类似如下代码\n","keywords":["Linux"],"articleBody":"A simple Bash Implementation 相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。\n什么？你不知道什么是 Bash？\n没关系，你一定见过下面这样的命令行界面：\n其实，这个以 $ 开头、等待你输入命令的界面，就是 Bash。\n在 Bash 中，我们可以通过多种方式运行程序，例如：\n直接运行程序：如 ls -l\n使用管道 (pipe)：将两个程序的输入输出连接在一起，比如 cat hello.txt | grep \"hello\"\n使用分号 (;)：运行多个命令，例如 mkdir hello; echo \"hello\" \u003e hello\n使用 \u0026：将任务放到后台运行\n这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 sh.c 源码为例，简单探索一个 Shell 的核心功能。\n回顾Shell的行为 在深入代码之前，我们先来回顾一下 Shell 的常见行为：\n​\t1. 直接输入命令：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。\n​\t2. 运行耗时命令：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。\n​\t3. 后台运行命令：使用 \u0026，如 sleep 10 \u0026，Bash 会立即返回提示符，不会阻塞。\n基于以上行为，一个简单的 Bash 实现可能类似如下代码\nint main(){ char cmd[512]; while (true) { get_cmd(cmd, sizeof(cmd)); // 获取用户输入的命令 if (fork() == 0) { // 子进程执行命令 run_cmd(cmd); } wait(0); // 父进程等待子进程结束 } } 在这个实现中：\n主循环不断读取用户输入。\n每次通过 fork 创建一个子进程来运行命令。\n主进程会等待子进程完成。这也是为什么运行耗时命令时，Bash 界面会“卡住”的原因。\n通过这样的结构，Bash 能够实现基本的命令执行和进程管理。接下来，我们将结合源码深入探讨这些功能的具体实现。熟悉面向对象编程的朋友可能会想到：我们可以将基本命令设计为基类，然后为不同的情况定义子类来处理特定逻辑。虽然 C 语言没有直接支持多态或继承，但我们可以通过结构体和函数指针实现类似的设计模式。\n利用结构体模拟面向对象 struct cmd{ int type; }; struct execcmd{ // 直接执行命令 int type; char *argv[MAXARGS]; char *eargv[MAXARGS]; }; struct pipecmd{ // 执行管道命令 int type; struct cmd* left; // 管道左边[生产者] struct cmd* right; // 管道右边[消费者] }; struct listcmd{ // 列表命令 int type; struct cmd* left; struct cmd* right; }; struct backcmd{ // 后台命令 int type; struct cmd* cmd; } 结构体设计的关键点 1.通用性：所有结构体都包含 type 字段，用于标识命令的类型，便于在运行时区分。 2.扩展性：通过为每种命令类型定义特定的结构体字段，增加了处理复杂场景的灵活性。 3.组合设计：结构体可以嵌套使用，例如在管道命令和列表命令中，通过指向 struct cmd 的指针，递归表示多层命令结构。\n通过这种设计，C 语言得以在没有面向对象特性的情况下，优雅地处理不同类型的命令。这种方法不仅保持了代码的组织性，还为扩展功能提供了清晰的框架。接下来，我们将结合具体的命令解析与执行流程，深入分析 xv6 中的实现细节。\n在具体实现过程中，一个关键步骤是对命令运行模式的识别。比如，通过分号 ; 判断是列表命令，通过\u0026 判断是后台命令。我们假设这部分已经由一个名为 parsecmd 的函数完成：\nstruct cmd* parsecmd(char* buf) { ... ... return cmd; //返回初始化后的结构体指针 } parsecmd 返回的 cmd 指针包含了命令的类型信息 (type)，用于区分具体的命令类型。接下来，通过 runcmd 函数，针对不同类型的命令实现对应的处理逻辑：\nswitch(cmd-\u003etype) { case EXEC: ecmd = (struct execcmd*)cmd; exec(ecmd-\u003eargv[0]), ecmd-\u003eargv) break; case LIST: lcmd = (struct listcmd*)cmd; if(fork() == 0) runcmd(lcmd-\u003eleft); wait(0); runcmd(lcmd-\u003eright); case PIPE: pcmd = (struct pipecmd*)cmd; pipe(p); if(fork() == 0) { close(1); dup(p[1]); close(p[0]); close(p[1]); runcmd(pcmd-\u003eleft); } if(fork() == 0) { close(0); dup(p[0]); close(p[0]); close(p[1]); runcmd(pcmd-\u003eleft); } wait(0); wait(0); break; case BACK: bcmd = (struct backcmd*) cmd; if(fork() == 0) { runcmd(bcmd-\u003ecmd); } break; } 接下来，我们分别解释这些命令类型的逻辑：\n基本命令(EXEC) EXEC 是最基本的命令类型，通常调用系统调用 exec 来运行程序。它需要提供程序的路径以及参数列表。在更复杂的命令中，EXEC 是最基本的单元。\n列表命令(LIST) 列表命令通过分号; 将命令串行执行。实现逻辑如下： 1.递归调用 runcmd 执行左侧命令（listcmd-\u003eleft）。 2.使用 wait 等待左侧命令完成。 3.执行右侧命令（listcmd-\u003eright）。 左右命令可以是基本命令，也可以是更复杂的类型。\n后台命令(BACK) 后台命令使用 \u0026 指定，表示命令在后台运行。实现逻辑如下： 1.调用 fork 创建一个子进程。 2.在子进程中递归调用 runcmd 执行命令。 3.父进程直接返回到 main 循环，继续读取下一条命令。\n这种方式确保后台命令不会阻塞 Bash 的命令行输入。\nPIPE命令逻辑 管道命令通过管道符 (|) 连接两个命令，用来将前一个命令的输出作为下一个命令的输入。实现逻辑如下： 1.调用 pipe 创建一个管道（pipe[0] 为输入，pipe[1] 为输出）。 2.使用 fork 创建两个子进程： • 子进程1：重定向标准输出到管道的写端，关闭不需要的管道端口，并递归调用 runcmd 执行左侧命令。 •子进程2：重定向标准输入到管道的读端，关闭不需要的管道端口，并递归调用 runcmd 执行右侧命令。 3.主进程关闭管道端口，并等待两个子进程完成。\n管道命令是 Bash 实现中较为复杂的部分，通过多次 fork 和 dup 操作实现了进程间的输入输出重定向。\n通过以上逻辑，runcmd 实现了对多种命令类型的灵活处理。结合 parsecmd 和 fork 等系统调用，这样的设计不仅结构清晰，还便于扩展其他命令类型。\n","wordCount":"335","inLanguage":"zh","datePublished":"2024-12-18T13:16:41+08:00","dateModified":"2024-12-18T13:16:41+08:00","author":{"@type":"Person","name":"Zach Peng"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://zhipzhang.github.io/zh/intro_bash/"},"publisher":{"@type":"Organization","name":"Zach Peng's Blog","logo":{"@type":"ImageObject","url":"https://zhipzhang.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://zhipzhang.github.io/zh/ accesskey=h title="Zach Peng's Blog (Alt + H)">Zach Peng's Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button><ul class=lang-switch><li>|</li><li><a href=https://zhipzhang.github.io/en/ title=English aria-label=English>En</a></li></ul></div></div><ul id=menu><li><a href=https://zhipzhang.github.io/zh/archives/ title=归档><span>归档</span></a></li><li><a href=https://zhipzhang.github.io/zh/search/ title=搜索><span>搜索</span></a></li><li><a href=https://zhipzhang.github.io/zh/tags/ title=标签><span>标签</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">探究Bash</h1><div class=post-meta><span title='2024-12-18 13:16:41 +0800 CST'>十二月 18, 2024</span>&nbsp;·&nbsp;Zach Peng</div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>目录</span></summary><div class=inner><ul><li><a href=#a-simple-bash-implementation aria-label="A simple Bash Implementation">A simple Bash Implementation</a><ul><li><a href=#%e5%9b%9e%e9%a1%beshell%e7%9a%84%e8%a1%8c%e4%b8%ba aria-label=回顾Shell的行为>回顾Shell的行为</a></li><li><a href=#%e5%88%a9%e7%94%a8%e7%bb%93%e6%9e%84%e4%bd%93%e6%a8%a1%e6%8b%9f%e9%9d%a2%e5%90%91%e5%af%b9%e8%b1%a1 aria-label=利用结构体模拟面向对象>利用结构体模拟面向对象</a><ul><li><a href=#%e5%9f%ba%e6%9c%ac%e5%91%bd%e4%bb%a4exec aria-label=基本命令(EXEC)>基本命令(EXEC)</a></li><li><a href=#%e5%88%97%e8%a1%a8%e5%91%bd%e4%bb%a4list aria-label=列表命令(LIST)>列表命令(LIST)</a></li><li><a href=#%e5%90%8e%e5%8f%b0%e5%91%bd%e4%bb%a4back aria-label=后台命令(BACK)>后台命令(BACK)</a></li><li><a href=#pipe%e5%91%bd%e4%bb%a4%e9%80%bb%e8%be%91 aria-label=PIPE命令逻辑>PIPE命令逻辑</a></li></ul></li></ul></li></ul></div></details></div><div class=post-content><h1 id=a-simple-bash-implementation>A simple Bash Implementation<a hidden class=anchor aria-hidden=true href=#a-simple-bash-implementation>#</a></h1><p>相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。</p><p><strong>什么？你不知道什么是 Bash？</strong></p><p>没关系，你一定见过下面这样的命令行界面：</p><p><img loading=lazy src=/image/bash.png alt=bash_image></p><p>其实，这个以 <code>$</code> 开头、等待你输入命令的界面，就是 Bash。</p><p>在 Bash 中，我们可以通过多种方式运行程序，例如：</p><ul><li><p><strong>直接运行程序</strong>：如 <code>ls -l</code></p></li><li><p><strong>使用管道 (<strong>pipe</strong>)</strong>：将两个程序的输入输出连接在一起，比如<code> cat hello.txt | grep "hello"</code></p></li><li><p><strong>使用分号 (</strong>;<strong>)</strong>：运行多个命令，例如 <code>mkdir hello; echo "hello" > hello</code></p></li><li><p><strong>使用</strong> &：将任务放到后台运行</p></li></ul><p>这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 <code>sh.c</code> 源码为例，简单探索一个 Shell 的核心功能。</p><h2 id=回顾shell的行为>回顾Shell的行为<a hidden class=anchor aria-hidden=true href=#回顾shell的行为>#</a></h2><p>在深入代码之前，我们先来回顾一下 Shell 的常见行为：</p><p>​ 1. <strong>直接输入命令</strong>：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。</p><p>​ 2. <strong>运行耗时命令</strong>：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。</p><p>​ 3. <strong>后台运行命令</strong>：使用 &，如 sleep 10 &，Bash 会立即返回提示符，不会阻塞。</p><p>基于以上行为，一个简单的 Bash 实现可能类似如下代码</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>(){
+</span></span><span style=display:flex><span>   <span style=color:#66d9ef>char</span> cmd[<span style=color:#ae81ff>512</span>];
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> (true) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>get_cmd</span>(cmd, <span style=color:#66d9ef>sizeof</span>(cmd)); <span style=color:#75715e>// 获取用户输入的命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>fork</span>() <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>) {         <span style=color:#75715e>// 子进程执行命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>run_cmd</span>(cmd);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>wait</span>(<span style=color:#ae81ff>0</span>);                   <span style=color:#75715e>// 父进程等待子进程结束
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>在这个实现中：</p><ul><li><p>主循环不断读取用户输入。</p></li><li><p>每次通过 fork 创建一个子进程来运行命令。</p></li><li><p>主进程会等待子进程完成。这也是为什么运行耗时命令时，Bash 界面会“卡住”的原因。</p></li></ul><p>通过这样的结构，Bash 能够实现基本的命令执行和进程管理。接下来，我们将结合源码深入探讨这些功能的具体实现。熟悉面向对象编程的朋友可能会想到：我们可以将基本命令设计为基类，然后为不同的情况定义子类来处理特定逻辑。虽然 C 语言没有直接支持多态或继承，但我们可以通过结构体和函数指针实现类似的设计模式。</p><h2 id=利用结构体模拟面向对象>利用结构体模拟面向对象<a hidden class=anchor aria-hidden=true href=#利用结构体模拟面向对象>#</a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>struct</span> cmd{
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> type;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> execcmd{ <span style=color:#75715e>// 直接执行命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>int</span> type;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>argv[MAXARGS];
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>eargv[MAXARGS];
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> pipecmd{ <span style=color:#75715e>// 执行管道命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>int</span> type;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> left; <span style=color:#75715e>// 管道左边[生产者]
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> right; <span style=color:#75715e>// 管道右边[消费者]
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> listcmd{ <span style=color:#75715e>// 列表命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>int</span> type;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> left;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> right;
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span><span style=color:#66d9ef>struct</span> backcmd{ <span style=color:#75715e>// 后台命令
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>int</span> type;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> cmd;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>结构体设计的关键点
+1.通用性：所有结构体都包含 type 字段，用于标识命令的类型，便于在运行时区分。
+2.扩展性：通过为每种命令类型定义特定的结构体字段，增加了处理复杂场景的灵活性。
+3.组合设计：结构体可以嵌套使用，例如在管道命令和列表命令中，通过指向 struct cmd 的指针，递归表示多层命令结构。</p><hr><p>通过这种设计，C 语言得以在没有面向对象特性的情况下，优雅地处理不同类型的命令。这种方法不仅保持了代码的组织性，还为扩展功能提供了清晰的框架。接下来，我们将结合具体的命令解析与执行流程，深入分析 xv6 中的实现细节。</p><p>在具体实现过程中，一个关键步骤是对命令运行模式的识别。比如，通过分号 <code>;</code> 判断是列表命令，通过<code>&</code> 判断是后台命令。我们假设这部分已经由一个名为 parsecmd 的函数完成：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>struct</span> cmd<span style=color:#f92672>*</span> <span style=color:#a6e22e>parsecmd</span>(<span style=color:#66d9ef>char</span><span style=color:#f92672>*</span> buf)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>return</span> cmd; <span style=color:#75715e>//返回初始化后的结构体指针
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
+</span></span></code></pre></div><p><code>parsecmd</code> 返回的 cmd 指针包含了命令的类型信息 (type)，用于区分具体的命令类型。接下来，通过 <code>runcmd</code> 函数，针对不同类型的命令实现对应的处理逻辑：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>switch</span>(cmd<span style=color:#f92672>-&gt;</span>type)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>case</span> EXEC:
+</span></span><span style=display:flex><span>    ecmd <span style=color:#f92672>=</span> (<span style=color:#66d9ef>struct</span> execcmd<span style=color:#f92672>*</span>)cmd;
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>exec</span>(ecmd<span style=color:#f92672>-&gt;</span>argv[<span style=color:#ae81ff>0</span>]), ecmd<span style=color:#f92672>-&gt;</span>argv)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>case</span> LIST:
+</span></span><span style=display:flex><span>  	lcmd <span style=color:#f92672>=</span> (<span style=color:#66d9ef>struct</span> listcmd<span style=color:#f92672>*</span>)cmd;
+</span></span><span style=display:flex><span>  	<span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>fork</span>() <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>runcmd</span>(lcmd<span style=color:#f92672>-&gt;</span>left);
+</span></span><span style=display:flex><span>  	<span style=color:#a6e22e>wait</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>  	<span style=color:#a6e22e>runcmd</span>(lcmd<span style=color:#f92672>-&gt;</span>right);
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>case</span> PIPE:
+</span></span><span style=display:flex><span>  	pcmd <span style=color:#f92672>=</span> (<span style=color:#66d9ef>struct</span> pipecmd<span style=color:#f92672>*</span>)cmd;
+</span></span><span style=display:flex><span>  	<span style=color:#a6e22e>pipe</span>(p);
+</span></span><span style=display:flex><span>  	<span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>fork</span>() <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>  	{
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(<span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>dup</span>(p[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(p[<span style=color:#ae81ff>0</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(p[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>runcmd</span>(pcmd<span style=color:#f92672>-&gt;</span>left);
+</span></span><span style=display:flex><span>  	}
+</span></span><span style=display:flex><span>  	<span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>fork</span>() <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>  	{
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>dup</span>(p[<span style=color:#ae81ff>0</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(p[<span style=color:#ae81ff>0</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>close</span>(p[<span style=color:#ae81ff>1</span>]);
+</span></span><span style=display:flex><span>  		<span style=color:#a6e22e>runcmd</span>(pcmd<span style=color:#f92672>-&gt;</span>left);
+</span></span><span style=display:flex><span>  	}
+</span></span><span style=display:flex><span>  	<span style=color:#a6e22e>wait</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>  	<span style=color:#a6e22e>wait</span>(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>  	<span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>case</span> BACK:
+</span></span><span style=display:flex><span>    bcmd <span style=color:#f92672>=</span> (<span style=color:#66d9ef>struct</span> backcmd<span style=color:#f92672>*</span>) cmd;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span>(<span style=color:#a6e22e>fork</span>() <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>runcmd</span>(bcmd<span style=color:#f92672>-&gt;</span>cmd);
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>break</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接下来，我们分别解释这些命令类型的逻辑：</p><h3 id=基本命令exec>基本命令(<code>EXEC</code>)<a hidden class=anchor aria-hidden=true href=#基本命令exec>#</a></h3><p>EXEC 是最基本的命令类型，通常调用系统调用 exec 来运行程序。它需要提供程序的路径以及参数列表。在更复杂的命令中，<code>EXEC</code> 是最基本的单元。</p><h3 id=列表命令list>列表命令(<code>LIST</code>)<a hidden class=anchor aria-hidden=true href=#列表命令list>#</a></h3><p>列表命令通过分号<code>;</code> 将命令串行执行。实现逻辑如下：
+1.递归调用 <code>runcmd</code> 执行左侧命令（<code>listcmd->left</code>）。
+2.使用 <code>wait</code> 等待左侧命令完成。
+3.执行右侧命令（<code>listcmd->right</code>）。
+左右命令可以是基本命令，也可以是更复杂的类型。</p><h3 id=后台命令back>后台命令(<code>BACK</code>)<a hidden class=anchor aria-hidden=true href=#后台命令back>#</a></h3><p>后台命令使用 & 指定，表示命令在后台运行。实现逻辑如下：
+1.调用 <code>fork</code> 创建一个子进程。
+2.在子进程中递归调用 <code>runcmd</code> 执行命令。
+3.父进程直接返回到 <code>main</code> 循环，继续读取下一条命令。</p><p>这种方式确保后台命令不会阻塞 Bash 的命令行输入。</p><h3 id=pipe命令逻辑><code>PIPE</code>命令逻辑<a hidden class=anchor aria-hidden=true href=#pipe命令逻辑>#</a></h3><p>管道命令通过管道符 (|) 连接两个命令，用来将前一个命令的输出作为下一个命令的输入。实现逻辑如下：
+1.调用 pipe 创建一个管道（<code>pipe[0]</code> 为输入，<code>pipe[1]</code> 为输出）。
+2.使用 fork 创建两个子进程：
+• 子进程1：重定向标准输出到管道的写端，关闭不需要的管道端口，并递归调用 <code>runcmd</code> 执行左侧命令。
+•子进程2：重定向标准输入到管道的读端，关闭不需要的管道端口，并递归调用<code> runcmd</code> 执行右侧命令。
+3.主进程关闭管道端口，并等待两个子进程完成。</p><p>管道命令是 <code>Bash</code> 实现中较为复杂的部分，通过多次 <code>fork</code> 和 <code>dup</code> 操作实现了进程间的输入输出重定向。</p><hr><p>通过以上逻辑，runcmd 实现了对多种命令类型的灵活处理。结合 parsecmd 和 fork 等系统调用，这样的设计不仅结构清晰，还便于扩展其他命令类型。</p></div><footer class=post-footer><ul class=post-tags><li><a href=https://zhipzhang.github.io/zh/tags/linux/>Linux</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://zhipzhang.github.io/zh/>Zach Peng's Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

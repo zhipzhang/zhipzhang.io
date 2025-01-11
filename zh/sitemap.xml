@@ -2,8 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://zhipzhang.github.io/zh/tags/linux/</loc>
+    <lastmod>2024-12-18T13:16:41+08:00</lastmod>
+  </url><url>
+    <loc>https://zhipzhang.github.io/zh/tags/</loc>
+    <lastmod>2024-12-18T13:16:41+08:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://zhipzhang.github.io/en/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh"
+                href="https://zhipzhang.github.io/zh/tags/"
+                />
+  </url><url>
     <loc>https://zhipzhang.github.io/zh/</loc>
-    <lastmod>2024-10-16T20:36:41+08:00</lastmod>
+    <lastmod>2024-12-18T13:16:41+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -15,6 +31,12 @@
                 href="https://zhipzhang.github.io/zh/"
                 />
   </url><url>
+    <loc>https://zhipzhang.github.io/zh/intro_bash/</loc>
+    <lastmod>2024-12-18T13:16:41+08:00</lastmod>
+  </url><url>
+    <loc>https://zhipzhang.github.io/zh/thanks_past_me/</loc>
+    <lastmod>2024-12-11T15:35:06+08:00</lastmod>
+  </url><url>
     <loc>https://zhipzhang.github.io/zh/tags/ctapipe/</loc>
     <lastmod>2024-10-16T20:16:41+08:00</lastmod>
   </url><url>
@@ -23,19 +45,6 @@
   </url><url>
     <loc>https://zhipzhang.github.io/zh/tags/lact/</loc>
     <lastmod>2024-10-16T20:16:41+08:00</lastmod>
-  </url><url>
-    <loc>https://zhipzhang.github.io/zh/tags/</loc>
-    <lastmod>2024-10-16T20:16:41+08:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://zhipzhang.github.io/en/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh"
-                href="https://zhipzhang.github.io/zh/tags/"
-                />
   </url><url>
     <loc>https://zhipzhang.github.io/zh/simtelarrayconfiguration/</loc>
     <lastmod>2024-10-14T15:58:58+08:00</lastmod>

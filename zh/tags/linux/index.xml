@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Linux on Zach Peng&#39;s Blog</title>
+    <link>https://zhipzhang.github.io/zh/tags/linux/</link>
+    <description>Recent content in Linux on Zach Peng&#39;s Blog</description>
+    <generator>Hugo -- 0.135.0</generator>
+    <language>zh</language>
+    <lastBuildDate>Wed, 18 Dec 2024 13:16:41 +0800</lastBuildDate>
+    <atom:link href="https://zhipzhang.github.io/zh/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>探究Bash</title>
+      <link>https://zhipzhang.github.io/zh/intro_bash/</link>
+      <pubDate>Wed, 18 Dec 2024 13:16:41 +0800</pubDate>
+      <guid>https://zhipzhang.github.io/zh/intro_bash/</guid>
+      <description>&lt;h1 id=&#34;a-simple-bash-implementation&#34;&gt;A simple Bash Implementation&lt;/h1&gt;
+&lt;p&gt;相信很多人在学习 Linux 时，接触到的第一个程序就是 Bash。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;什么？你不知道什么是 Bash？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;没关系，你一定见过下面这样的命令行界面：&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://zhipzhang.github.io/image/bash.png&#34; alt=&#34;bash_image&#34;  /&gt;
+&lt;/p&gt;
+&lt;p&gt;其实，这个以 &lt;code&gt;$&lt;/code&gt; 开头、等待你输入命令的界面，就是 Bash。&lt;/p&gt;
+&lt;p&gt;在 Bash 中，我们可以通过多种方式运行程序，例如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;直接运行程序&lt;/strong&gt;：如 &lt;code&gt;ls -l&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;使用管道 (&lt;strong&gt;pipe&lt;/strong&gt;)&lt;/strong&gt;：将两个程序的输入输出连接在一起，比如&lt;code&gt; cat hello.txt | grep &amp;quot;hello&amp;quot;&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;使用分号 (&lt;/strong&gt;;&lt;strong&gt;)&lt;/strong&gt;：运行多个命令，例如 &lt;code&gt;mkdir hello; echo &amp;quot;hello&amp;quot; &amp;gt; hello&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;使用&lt;/strong&gt; &amp;amp;：将任务放到后台运行&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些方式背后的逻辑都由 Bash 来处理和执行。那么，它是如何实现的呢？接下来，我们以 xv6 中的 &lt;code&gt;sh.c&lt;/code&gt; 源码为例，简单探索一个 Shell 的核心功能。&lt;/p&gt;
+&lt;h2 id=&#34;回顾shell的行为&#34;&gt;回顾Shell的行为&lt;/h2&gt;
+&lt;p&gt;在深入代码之前，我们先来回顾一下 Shell 的常见行为：&lt;/p&gt;
+&lt;p&gt;​	1. &lt;strong&gt;直接输入命令&lt;/strong&gt;：比如 ls，结果会立即显示到屏幕上，随后等待输入下一条命令。&lt;/p&gt;
+&lt;p&gt;​	2. &lt;strong&gt;运行耗时命令&lt;/strong&gt;：例如删除一个包含大量文件的文件夹时，Bash 会暂停，直到操作完成。&lt;/p&gt;
+&lt;p&gt;​	3. &lt;strong&gt;后台运行命令&lt;/strong&gt;：使用 &amp;amp;，如 sleep 10 &amp;amp;，Bash 会立即返回提示符，不会阻塞。&lt;/p&gt;
+&lt;p&gt;基于以上行为，一个简单的 Bash 实现可能类似如下代码&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
